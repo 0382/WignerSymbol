@@ -19,7 +19,7 @@ double x = wigner.f6j(dj1, dj2, dj3, dj4, dj5, dj6);
 ## 提供的函数
 ```cpp
 // 二项式系数
-double WignerSymbols::binominal(int n, int k);
+double WignerSymbols::binomial(int n, int k);
 // CG系数
 double WignerSymbols::CG(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3);
 // 3j系数
@@ -31,7 +31,7 @@ double WignerSymbols::Racah(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6
 // 9j系数
 double WignerSymbols::f9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
 ```
-其中，除了`binominal`函数之外，其余函数均使用真实角动量量子数的两倍作为参数，这是为了处理半整数角动量的情况。所以要计算`<10|1/2,1/2;1/2,-1/2>`这个CG系数，你需要调用的是
+其中，除了`binomial`函数之外，其余函数均使用真实角动量量子数的两倍作为参数，这是为了处理半整数角动量的情况。所以要计算`<10|1/2,1/2;1/2,-1/2>`这个CG系数，你需要调用的是
 ```cpp
 WignerSymbols wigner;
 double x = wigner.CG(1,1,2,1,-1,0);
@@ -39,9 +39,9 @@ double x = wigner.CG(1,1,2,1,-1,0);
 
 ## `reserve`函数
 
-所有的系数都是使用二项式系数`binominal`来计算的，这个库会先存储下部分二项式系数，之后用到的时候直接取。所以这个库调用的`binominal`函数只有参数的范围在存储范围之内才获得正确的结果，否则直接返回零。
+所有的系数都是使用二项式系数`binomial`来计算的，这个库会先存储下部分二项式系数，之后用到的时候直接取。所以这个库调用的`binomial`函数只有参数的范围在存储范围之内才获得正确的结果，否则直接返回零。
 
-在`WignerSymbols`对象初始化时，会先存下`binominal(0, 0)`到`binominal(67, 33)`所有的二项式系数。你可以使用`reserve`函数扩充这个范围。`reserve`函数签名为
+在`WignerSymbols`对象初始化时，会先存下`binomial(0, 0)`到`binomial(67, 33)`所有的二项式系数。你可以使用`reserve`函数扩充这个范围。`reserve`函数签名为
 ```cpp
 void WignerSymbols::reserve(int num, std::string type, int rank)
 ```
@@ -66,7 +66,7 @@ int djmax = 21;
 wigner.reserve(djmax, "2bjmax", 6);
 ```
 
-表示的意义是，我们体系中最大的单粒子轨道的角动量为`21/2`，于是最大可能的两体耦合角动量为`21`，同时代码中仅计算CG系数和6j系数，而不会计算9j系数。在这个例子中，保存的`binominal(n, k)`系数中，最大的`n`为
+表示的意义是，我们体系中最大的单粒子轨道的角动量为`21/2`，于是最大可能的两体耦合角动量为`21`，同时代码中仅计算CG系数和6j系数，而不会计算9j系数。在这个例子中，保存的`binomial(n, k)`系数中，最大的`n`为
 
 ```cpp
 nmax = 3*djmax + 1 = 3 * 21 + 1 = 64
