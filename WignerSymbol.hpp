@@ -213,7 +213,7 @@ class WignerSymbols
         return iphase(dth) * P0 * PABC;
     }
 
-    void reserve(int num, std::string type = "djmax", int rank = 9)
+    void reserve(int num, std::string type, int rank)
     {
         if (type == "Jmax")
         {
@@ -229,7 +229,7 @@ class WignerSymbols
                 }
             }
         }
-        else if (type == "djmax")
+        else if (type == "2bjmax")
         {
             switch (rank)
             {
@@ -249,7 +249,7 @@ class WignerSymbols
         }
         else
         {
-            std::cerr << "Error: type must be Jmax, djmax, or nmax" << std::endl;
+            std::cerr << "Error: type must be Jmax, 2bjmax, or nmax" << std::endl;
             std::exit(-1);
         }
     }
