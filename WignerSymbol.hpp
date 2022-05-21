@@ -52,9 +52,10 @@ inline bool check_jm(T dj, T dm)
 
 // judge if three angular momentum can couple
 template <typename T, typename = typename std::enable_if_t<std::is_integral_v<T>>>
-inline bool check_couple(T j1, T j2, T j3)
+inline bool check_couple(T dj1, T dj2, T dj3)
 {
-    return j1 >= 0 && j2 >= 0 && iseven((j1 + j2) ^ j3) && (j3 <= (j1 + j2)) && (j3 >= std::abs(j1 - j2));
+    return dj1 >= 0 && dj2 >= 0 && is_same_parity(dj1 + dj2, dj3) && (dj3 <= (dj1 + dj2)) &&
+           (dj3 >= std::abs(dj1 - dj2));
 }
 
 class WignerSymbols
@@ -68,12 +69,11 @@ class WignerSymbols
     }
     double binomial(int n, int k) const
     {
-        if (n < 0 || n > _nmax || k < 0 || k > n)
+        if (unsigned(n) > unsigned(_nmax) || unsigned(k) > unsigned(n))
             return 0;
         else
         {
-            if (k > n / 2)
-                k = n - k;
+            k = std::min(k, n - k);
             return _binomial_data[_binomial_index(n, k)];
         }
     }
@@ -165,9 +165,9 @@ class WignerSymbols
         int pm789 = (dj7 + dj8 - dj9) / 2;
         int pm798 = (dj7 + dj9 - dj8) / 2;
         int pm897 = (dj8 + dj9 - dj7) / 2;
-        double P0_nu = binomial(j123 + 1, dj1 + 1) * binomial(dj1, pm123) *
-                       (binomial(j456 + 1, dj5 + 1) * binomial(dj5, pm456) * binomial(j789 + 1, dj9 + 1) *
-                        binomial(dj9, pm798));
+        double P0_nu = binomial(j123 + 1, dj1 + 1) * binomial(dj1, pm123) * //
+                       binomial(j456 + 1, dj5 + 1) * binomial(dj5, pm456) * //
+                       binomial(j789 + 1, dj9 + 1) * binomial(dj9, pm798);
         double P0_de = binomial(j147 + 1, dj1 + 1) * binomial(dj1, (dj1 + dj4 - dj7) / 2) *
                        binomial(j258 + 1, dj5 + 1) * binomial(dj5, (dj2 + dj5 - dj8) / 2) *
                        binomial(j369 + 1, dj9 + 1) * binomial(dj9, (dj3 + dj9 - dj6) / 2);
@@ -272,7 +272,13 @@ class WignerSymbols
         if (nmax <= _nmax)
             return;
         std::vector<double> old_data = _binomial_data;
-        _binomial_data.resize(_binomial_data_size(nmax));
+        std::size_t reserve_size = _binomial_data_size(nmax);
+        if (reserve_size > std::numeric_limits<int>::max())
+        {
+            std::cerr << "Error: nmax too large" << std::endl;
+            std::exit(-1);
+        }
+        _binomial_data.resize(reserve_size);
         std::copy(std::begin(old_data), std::end(old_data), _binomial_data.begin());
         for (int n = _nmax + 1; n <= nmax; ++n)
         {

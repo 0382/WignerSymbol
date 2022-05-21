@@ -58,15 +58,15 @@ void time_9j() {
   int N = 8;
   wigner.reserve(N, "Jmax", 9);
   double x = 0;
-  for (int dj1 = 0; dj1 <= N; ++dj1) {
-    for (int dj2 = 0; dj2 <= N; ++dj2) {
-      for (int dj3 = 0; dj3 <= N; ++dj3) {
-        for (int dj4 = 0; dj4 <= N; ++dj4) {
-          for (int dj5 = 0; dj5 <= N; ++dj5) {
-            for (int dj6 = 0; dj6 <= N; ++dj6) {
-              for (int dj7 = 0; dj7 <= N; ++dj7) {
-                for (int dj8 = 0; dj8 <= N; ++dj8) {
-                  for (int dj9 = 0; dj9 <= N; ++dj9) {
+  for (int dj1 = N; dj1 <= 2*N; ++dj1) {
+    for (int dj2 = N; dj2 <= 2*N; ++dj2) {
+      for (int dj3 = N; dj3 <= 2*N; ++dj3) {
+        for (int dj4 = N; dj4 <= 2*N; ++dj4) {
+          for (int dj5 = N; dj5 <= 2*N; ++dj5) {
+            for (int dj6 = N; dj6 <= 2*N; ++dj6) {
+              for (int dj7 = N; dj7 <= 2*N; ++dj7) {
+                for (int dj8 = N; dj8 <= 2*N; ++dj8) {
+                  for (int dj9 = N; dj9 <= 2*N; ++dj9) {
                     x +=
                         wigner.f9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
                   }
@@ -80,15 +80,15 @@ void time_9j() {
   }
   auto t2 = timer_colok::now();
   double y = 0;
-  for (int dj1 = 0; dj1 <= N; ++dj1) {
-    for (int dj2 = 0; dj2 <= N; ++dj2) {
-      for (int dj3 = 0; dj3 <= N; ++dj3) {
-        for (int dj4 = 0; dj4 <= N; ++dj4) {
-          for (int dj5 = 0; dj5 <= N; ++dj5) {
-            for (int dj6 = 0; dj6 <= N; ++dj6) {
-              for (int dj7 = 0; dj7 <= N; ++dj7) {
-                for (int dj8 = 0; dj8 <= N; ++dj8) {
-                  for (int dj9 = 0; dj9 <= N; ++dj9) {
+  for (int dj1 = N; dj1 <= 2*N; ++dj1) {
+    for (int dj2 = N; dj2 <= 2*N; ++dj2) {
+      for (int dj3 = N; dj3 <= 2*N; ++dj3) {
+        for (int dj4 = N; dj4 <= 2*N; ++dj4) {
+          for (int dj5 = N; dj5 <= 2*N; ++dj5) {
+            for (int dj6 = N; dj6 <= 2*N; ++dj6) {
+              for (int dj7 = N; dj7 <= 2*N; ++dj7) {
+                for (int dj8 = N; dj8 <= 2*N; ++dj8) {
+                  for (int dj9 = N; dj9 <= 2*N; ++dj9) {
                     y += gsl_sf_coupling_9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7,
                                             dj8, dj9);
                   }

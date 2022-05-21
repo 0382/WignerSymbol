@@ -6,7 +6,7 @@ Calculate CG coefficient, Racah coefficient, and Wigner 3j, 6j, 9j coefficient. 
 
 ## Usage
 
-Copy the `WignerSymbol.hpp` file to you code, and include it.
+Just copy the `WignerSymbol.hpp` file to you project, and include it, and then you can use it.
 
 ```cpp
 using namespace jshl;
@@ -47,14 +47,14 @@ void WignerSymbols::reserve(int num, std::string type, int rank)
 ```
 and its parameters means
 
-|                          |    Calculate range    |   CG & 3j   | 6j & Racah  |     9j      |
-| :----------------------: | :------------: | :---------: | :---------: | :---------: |
-|       meaning of `type`           | `type`\\`rank` |      3      |      6      |      9      |
-|      max angular momentum mode    |    `"Jmax"`    | `3*Jmax+1`  | `4*Jmax+1`  | `5*Jmax+1`  |
-| max two-body coupled angular momentum mode |   `"2bjmax"`    | `2*jmax+1` | `3*jmax+1` | `4*jmax+1` |
-|    max binomial mode             |    `"nmax"`    |   `nmax`    |   `namx`    |   `nmax`    |
+|                                       |    Calculate range    |   CG & 3j   | 6j & Racah  |     9j      |
+| :-----------------------------------: | :-------------------: | :---------: | :---------: | :---------: |
+|          meaning of `type`            | `type`\\\\`rank`      |      3      |      6      |      9      |
+|        max angular momentum           |    `"Jmax"`           | `3*Jmax+1`  | `4*Jmax+1`  | `5*Jmax+1`  |
+| max two-body coupled angular momentum |   `"2bjmax"`          | `2*jmax+1`  | `3*jmax+1`  | `4*jmax+1`  |
+|            max binomial               |    `"nmax"`           |   `nmax`    |   `namx`    |   `nmax`    |
 
-The value in the table means the minimum binomial range to guarantee the Wigner Symbol calculation. You do not need to rememmber those values. You just need to find the maximum angular momentum in you canculation, wen call the `reserve` function.
+The value in the table means the minimum binomial range to guarantee the Wigner Symbol calculation. You do not need to rememmber those values. You just need to find the maximum angular momentum in you canculation, then call the `reserve` function.
 
 ### `"2bjmax"`
 
@@ -107,3 +107,5 @@ The `"nmax"` mode directly set `nmax`, and the `rank` parameter is ignored. This
 ### Thread safety
 
 The `reserve` is **not** thread safe. So you shuld not call `reserve` function dymanically in a multi-threading program. The correct way to use this package is find the maximum angular momentum quantum number in you system, and call `reserve` at the beginning of the code, and then don't call it any more.
+
+Howerver, you can create one `WignerSymbols` object for each thread, they will work independently. Because the sotred `binomial`s do not cost too many memory for most calculation, so I don't use `static` member to store them, each object will take it own storage. And also because of the small memory cost, please feel free to create several `WignerSymbols` objects at the same time.
