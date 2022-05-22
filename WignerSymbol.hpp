@@ -67,7 +67,7 @@ class WignerSymbols
         _binomial_data.resize(_binomial_data_size(_nmax));
         std::copy(std::begin(u64_binomial_data), std::end(u64_binomial_data), _binomial_data.begin());
     }
-    double binomial(int n, int k) const
+    double binomial(int n, int k)
     {
         if (unsigned(n) > unsigned(_nmax) || unsigned(k) > unsigned(n))
             return 0;
@@ -76,6 +76,12 @@ class WignerSymbols
             k = std::min(k, n - k);
             return _binomial_data[_binomial_index(n, k)];
         }
+    }
+
+    double unsafe_binomial(int n, int k) const
+    {
+        k = std::min(k, n - k);
+        return _binomial_data[_binomial_index(n, k)];
     }
     double CG(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3) const
     {
@@ -94,14 +100,14 @@ class WignerSymbols
         int j3mm3 = (dj3 - dm3) / 2;
         int j2pm2 = (dj2 + dm2) / 2;
         double A =
-            std::sqrt(binomial(dj1, jm2) * binomial(dj2, jm3) /
-                      (binomial(J + 1, jm3) * binomial(dj1, j1mm1) * binomial(dj2, j2mm2) * binomial(dj3, j3mm3)));
+            std::sqrt(unsafe_binomial(dj1, jm2) * unsafe_binomial(dj2, jm3) /
+                      (unsafe_binomial(J + 1, jm3) * unsafe_binomial(dj1, j1mm1) * unsafe_binomial(dj2, j2mm2) * unsafe_binomial(dj3, j3mm3)));
         double B = 0;
         int low = std::max(0, std::max(j1mm1 - jm2, j2pm2 - jm1));
         int high = std::min(jm3, std::min(j1mm1, j2pm2));
         for (auto z = low; z <= high; ++z)
         {
-            B = -B + binomial(jm3, z) * binomial(jm2, j1mm1 - z) * binomial(jm1, j2pm2 - z);
+            B = -B + unsafe_binomial(jm3, z) * unsafe_binomial(jm2, j1mm1 - z) * unsafe_binomial(jm1, j2pm2 - z);
         }
         return iphase(high) * A * B;
     }
@@ -126,16 +132,16 @@ class WignerSymbols
         int jpm156 = (dj1 + dj5 - dj6) / 2;
         int jpm426 = (dj4 + dj2 - dj6) / 2;
         int jpm453 = (dj4 + dj5 - dj3) / 2;
-        double A = std::sqrt(binomial(j123 + 1, dj1 + 1) * binomial(dj1, jpm123) /
-                             (binomial(j156 + 1, dj1 + 1) * binomial(dj1, jpm156) * binomial(j453 + 1, dj4 + 1) *
-                              binomial(dj4, jpm453) * binomial(j426 + 1, dj4 + 1) * binomial(dj4, jpm426)));
+        double A = std::sqrt(unsafe_binomial(j123 + 1, dj1 + 1) * unsafe_binomial(dj1, jpm123) /
+                             (unsafe_binomial(j156 + 1, dj1 + 1) * unsafe_binomial(dj1, jpm156) * unsafe_binomial(j453 + 1, dj4 + 1) *
+                              unsafe_binomial(dj4, jpm453) * unsafe_binomial(j426 + 1, dj4 + 1) * unsafe_binomial(dj4, jpm426)));
         double B = 0;
         int low = std::max(j123, std::max(j156, std::max(j426, j453)));
         int high = std::min(jpm123 + j453, std::min(jpm132 + j426, jpm231 + j156));
         for (auto x = low; x <= high; ++x)
         {
-            B = -B + binomial(x + 1, j123 + 1) * binomial(jpm123, x - j453) * binomial(jpm132, x - j426) *
-                         binomial(jpm231, x - j156);
+            B = -B + unsafe_binomial(x + 1, j123 + 1) * unsafe_binomial(jpm123, x - j453) * unsafe_binomial(jpm132, x - j426) *
+                         unsafe_binomial(jpm231, x - j156);
         }
         return iphase(high) * A * B / (dj4 + 1);
     }
@@ -165,12 +171,12 @@ class WignerSymbols
         int pm789 = (dj7 + dj8 - dj9) / 2;
         int pm798 = (dj7 + dj9 - dj8) / 2;
         int pm897 = (dj8 + dj9 - dj7) / 2;
-        double P0_nu = binomial(j123 + 1, dj1 + 1) * binomial(dj1, pm123) * //
-                       binomial(j456 + 1, dj5 + 1) * binomial(dj5, pm456) * //
-                       binomial(j789 + 1, dj9 + 1) * binomial(dj9, pm798);
-        double P0_de = binomial(j147 + 1, dj1 + 1) * binomial(dj1, (dj1 + dj4 - dj7) / 2) *
-                       binomial(j258 + 1, dj5 + 1) * binomial(dj5, (dj2 + dj5 - dj8) / 2) *
-                       binomial(j369 + 1, dj9 + 1) * binomial(dj9, (dj3 + dj9 - dj6) / 2);
+        double P0_nu = unsafe_binomial(j123 + 1, dj1 + 1) * unsafe_binomial(dj1, pm123) * //
+                       unsafe_binomial(j456 + 1, dj5 + 1) * unsafe_binomial(dj5, pm456) * //
+                       unsafe_binomial(j789 + 1, dj9 + 1) * unsafe_binomial(dj9, pm798);
+        double P0_de = unsafe_binomial(j147 + 1, dj1 + 1) * unsafe_binomial(dj1, (dj1 + dj4 - dj7) / 2) *
+                       unsafe_binomial(j258 + 1, dj5 + 1) * unsafe_binomial(dj5, (dj2 + dj5 - dj8) / 2) *
+                       unsafe_binomial(j369 + 1, dj9 + 1) * unsafe_binomial(dj9, (dj3 + dj9 - dj6) / 2);
         double P0 = std::sqrt(P0_nu / P0_de);
         int dtl = std::max(std::abs(dj2 - dj6), std::max(std::abs(dj4 - dj8), std::abs(dj1 - dj9)));
         int dth = std::min(dj2 + dj6, std::min(dj4 + dj8, dj1 + dj9));
@@ -180,33 +186,33 @@ class WignerSymbols
             int j19t = (dj1 + dj9 + dt) / 2;
             int j26t = (dj2 + dj6 + dt) / 2;
             int j48t = (dj4 + dj8 + dt) / 2;
-            double Pt_de = binomial(j19t + 1, dt + 1) * binomial(dt, (dj1 + dt - dj9) / 2) *
-                           binomial(j26t + 1, dt + 1) * binomial(dt, (dj2 + dt - dj6) / 2) *
-                           binomial(j48t + 1, dt + 1) * binomial(dt, (dj4 + dt - dj8) / 2);
+            double Pt_de = unsafe_binomial(j19t + 1, dt + 1) * unsafe_binomial(dt, (dj1 + dt - dj9) / 2) *
+                           unsafe_binomial(j26t + 1, dt + 1) * unsafe_binomial(dt, (dj2 + dt - dj6) / 2) *
+                           unsafe_binomial(j48t + 1, dt + 1) * unsafe_binomial(dt, (dj4 + dt - dj8) / 2);
             Pt_de *= (dt + 1) * (dt + 1);
             int xl = std::max(j123, std::max(j369, std::max(j26t, j19t)));
             int xh = std::min(pm123 + j369, std::min(pm132 + j26t, pm231 + j19t));
             double At = 0;
             for (auto x = xl; x <= xh; ++x)
             {
-                At = -At + binomial(x + 1, j123 + 1) * binomial(pm123, x - j369) * binomial(pm132, x - j26t) *
-                               binomial(pm231, x - j19t);
+                At = -At + unsafe_binomial(x + 1, j123 + 1) * unsafe_binomial(pm123, x - j369) * unsafe_binomial(pm132, x - j26t) *
+                               unsafe_binomial(pm231, x - j19t);
             }
             int yl = std::max(j456, std::max(j26t, std::max(j258, j48t)));
             int yh = std::min(pm456 + j26t, std::min(pm465 + j258, pm564 + j48t));
             double Bt = 0;
             for (auto y = yl; y <= yh; ++y)
             {
-                Bt = -Bt + binomial(y + 1, j456 + 1) * binomial(pm456, y - j26t) * binomial(pm465, y - j258) *
-                               binomial(pm564, y - j48t);
+                Bt = -Bt + unsafe_binomial(y + 1, j456 + 1) * unsafe_binomial(pm456, y - j26t) * unsafe_binomial(pm465, y - j258) *
+                               unsafe_binomial(pm564, y - j48t);
             }
             int zl = std::max(j789, std::max(j19t, std::max(j48t, j147)));
             int zh = std::min(pm789 + j19t, std::min(pm798 + j48t, pm897 + j147));
             double Ct = 0;
             for (auto z = zl; z <= zh; ++z)
             {
-                Ct = -Ct + binomial(z + 1, j789 + 1) * binomial(pm789, z - j19t) * binomial(pm798, z - j48t) *
-                               binomial(pm897, z - j147);
+                Ct = -Ct + unsafe_binomial(z + 1, j789 + 1) * unsafe_binomial(pm789, z - j19t) * unsafe_binomial(pm798, z - j48t) *
+                               unsafe_binomial(pm897, z - j147);
             }
             PABC += iphase(xh + yh + zh) * At * Bt * Ct / Pt_de;
         }
