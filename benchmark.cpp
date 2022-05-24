@@ -60,6 +60,58 @@ void time_3j()
               << " ms" << std::endl;
 }
 
+// in time_3j, most Wigner 3j symbol is zero
+// here, we test the performance of Wigner 3j symbol which is always non-zero
+void time_3j_always_valid()
+{
+    using timer_clock = std::chrono::high_resolution_clock;
+    auto t1 = timer_clock::now();
+    WignerSymbols wigner;
+    int N = 40;
+    wigner.reserve(N, "2bjmax", 3);
+    double x = 0;
+    for (int dj1 = 0; dj1 <= N; ++dj1)
+    {
+        for (int dj2 = 0; dj2 <= N; ++dj2)
+        {
+            for (int dj3 = std::abs(dj1 - dj2); dj3 <= dj1 + dj2; dj3 += 2)
+            {
+                for (int dm1 = -dj1; dm1 <= dj1; dm1 += 2)
+                {
+                    for (int dm2 = -dj2; dm2 <= dj2; dm2 += 2)
+                    {
+                        x += wigner.f3j(dj1, dj2, dj3, dm1, dm2, -dm1 - dm2);
+                    }
+                }
+            }
+        }
+    }
+    auto t2 = timer_clock::now();
+    double y = 0;
+    for (int dj1 = 0; dj1 <= N; ++dj1)
+    {
+        for (int dj2 = 0; dj2 <= N; ++dj2)
+        {
+            for (int dj3 = std::abs(dj1 - dj2); dj3 <= dj1 + dj2; dj3 += 2)
+            {
+                for (int dm1 = -dj1; dm1 <= dj1; dm1 += 2)
+                {
+                    for (int dm2 = -dj2; dm2 <= dj2; dm2 += 2)
+                    {
+                        y += gsl_sf_coupling_3j(dj1, dj2, dj3, dm1, dm2, -dm1-dm2);
+                    }
+                }
+            }
+        }
+    }
+    auto t3 = timer_clock::now();
+    std::cout << "time 3j, diff = " << x - y << std::endl;
+    std::cout << "this code time = " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << " ms"
+              << std::endl;
+    std::cout << "gsl library time = " << std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2).count()
+              << " ms" << std::endl;
+}
+
 void time_6j()
 {
     using timer_clock = std::chrono::high_resolution_clock;
@@ -294,8 +346,11 @@ int main()
     // test_3j();
     // test_6j();
     // test_9j();
+    std::cout << "----- test where most results are zeros -----" << std::endl;
     time_3j();
     time_6j();
     time_9j();
+    std::cout << "----- test where arguements are always valid -----" << std::endl;
+    time_3j_always_valid();
     return 0;
 }
