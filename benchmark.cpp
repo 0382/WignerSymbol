@@ -506,15 +506,15 @@ void test_9j()
 int main()
 {
     // test_3j();
-    test_CG0();
+    // test_CG0();
     // test_6j();
     // test_9j();
     // std::cout << "----- test where most results are zeros -----" << std::endl;
-    // time_3j();
+    time_3j();
     // time_6j();
     // time_9j();
     // std::cout << "----- test where arguements are always valid -----" << std::endl;
-    // time_3j_always_valid();
+    time_3j_always_valid();
     // time_6j_always_valid();
     // time_9j_always_valid();
     return 0;

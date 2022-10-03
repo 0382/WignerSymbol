@@ -116,7 +116,31 @@ class WignerSymbols
 
     double f3j(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3) const
     {
-        return iphase((dj1 + (dj3 + dm3) / 2)) * std::sqrt(1. / (dj3 + 1)) * CG(dj1, dj2, dj3, -dm1, -dm2, dm3);
+        if (!(check_jm(dj1, dm1) && check_jm(dj2, dm2) && check_jm(dj3, dm3)))
+            return 0;
+        if (!check_couple(dj1, dj2, dj3))
+            return 0;
+        if (dm1 + dm2 + dm3 != 0)
+            return 0;
+        int J = (dj1 + dj2 + dj3) / 2;
+        int jm1 = J - dj1;
+        int jm2 = J - dj2;
+        int jm3 = J - dj3;
+        int j1mm1 = (dj1 - dm1) / 2;
+        int j2mm2 = (dj2 - dm2) / 2;
+        int j3mm3 = (dj3 - dm3) / 2;
+        int j1pm1 = (dj1 + dm1) / 2;
+        double A = std::sqrt(unsafe_binomial(dj1, jm2) * unsafe_binomial(dj2, jm1) /
+                             ((J + 1) * unsafe_binomial(J, jm3) * unsafe_binomial(dj1, j1mm1) *
+                              unsafe_binomial(dj2, j2mm2) * unsafe_binomial(dj3, j3mm3)));
+        double B = 0;
+        int low = std::max(0, std::max(j1pm1 - jm2, j2mm2 - jm1));
+        int high = std::min(jm3, std::min(j1pm1, j2mm2));
+        for (auto z = low; z <= high; ++z)
+        {
+            B = -B + unsafe_binomial(jm3, z) * unsafe_binomial(jm2, j1pm1 - z) * unsafe_binomial(jm1, j2mm2 - z);
+        }
+        return iphase(dj1 + (dj3 + dm3) / 2 + high) * A * B;
     }
 
     double f6j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6) const
