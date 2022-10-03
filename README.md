@@ -22,6 +22,8 @@ double x = wigner.f6j(dj1, dj2, dj3, dj4, dj5, dj6);
 double WignerSymbols::binomial(int n, int k);
 // CG coefficient
 double WignerSymbols::CG(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3);
+// CG coefficient with m1 == m2 == m3 == 0
+double WignerSymbols::CG0(int j1, int j2, int j3);
 // Wigner 3j symbol
 double WignerSymbols::f3j(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3);
 // Wigner 6j symbol
@@ -33,7 +35,7 @@ double WignerSymbols::f9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, 
 // Wigner d-function <j,m1|exp(i*beta*jy)|j,m2>
 double WignerSymbols::dfunc(int dj, int dm1, int dm2, double beta);
 ```
-Apart from `binomial`, all the functions use double of the real angular momentum quantum number to avoid half integers. So if you want to calculate `<10|1/2,1/2;1/2,-1/2>`, you should call like this,
+Apart from `binomial` and `CG0`, all the functions use double of the real angular momentum quantum number to avoid half integers. So if you want to calculate `<10|1/2,1/2;1/2,-1/2>`, you should call like this,
 ```cpp
 WignerSymbols wigner;
 double x = wigner.CG(1,1,2,1,-1,0);

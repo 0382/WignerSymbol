@@ -22,6 +22,8 @@ double x = wigner.f6j(dj1, dj2, dj3, dj4, dj5, dj6);
 double WignerSymbols::binomial(int n, int k);
 // CG系数
 double WignerSymbols::CG(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3);
+// CG 系数特殊情况 m1 == m2 == m3 == 0
+double WignerSymbols::CG0(int j1, int j2, int j3);
 // 3j系数
 double WignerSymbols::f3j(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3);
 // 6j系数
@@ -33,7 +35,7 @@ double WignerSymbols::f9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, 
 // Wigner d函数 <j,m1|exp(i*beta*jy)|j,m2>
 double WignerSymbols::dfunc(int dj, int dm1, int dm2, double beta);
 ```
-其中，除了`binomial`函数之外，其余函数均使用真实角动量量子数的两倍作为参数，这是为了处理半整数角动量的情况。所以要计算`<10|1/2,1/2;1/2,-1/2>`这个CG系数，你需要调用的是
+其中，除了`binomial`和`CG0`函数之外，其余函数均使用真实角动量量子数的两倍作为参数，这是为了处理半整数角动量的情况。所以要计算`<10|1/2,1/2;1/2,-1/2>`这个CG系数，你需要调用的是
 ```cpp
 WignerSymbols wigner;
 double x = wigner.CG(1,1,2,1,-1,0);

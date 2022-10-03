@@ -12,9 +12,9 @@ void time_3j()
     int N = 40;
     wigner.reserve(N, "2bjmax", 3);
     double x = 0;
-    for (int dj1 = 0; dj1 < N; ++dj1)
+    for (int dj1 = 0; dj1 <= N; ++dj1)
     {
-        for (int dj2 = 0; dj2 < N; ++dj2)
+        for (int dj2 = 0; dj2 <= N; ++dj2)
         {
             for (int dj3 = std::abs(dj1 - dj2); dj3 <= dj1 + dj2; dj3 += 2)
             {
@@ -33,9 +33,9 @@ void time_3j()
     }
     auto t2 = timer_clock::now();
     double y = 0;
-    for (int dj1 = 0; dj1 < N; ++dj1)
+    for (int dj1 = 0; dj1 <= N; ++dj1)
     {
-        for (int dj2 = 0; dj2 < N; ++dj2)
+        for (int dj2 = 0; dj2 <= N; ++dj2)
         {
             for (int dj3 = std::abs(dj1 - dj2); dj3 <= dj1 + dj2; dj3 += 2)
             {
@@ -67,7 +67,7 @@ void time_3j_always_valid()
     using timer_clock = std::chrono::high_resolution_clock;
     auto t1 = timer_clock::now();
     WignerSymbols wigner;
-    int N = 40;
+    int N = 50;
     wigner.reserve(N, "2bjmax", 3);
     double x = 0;
     for (int dj1 = 0; dj1 <= N; ++dj1)
@@ -98,7 +98,7 @@ void time_3j_always_valid()
                 {
                     for (int dm2 = -dj2; dm2 <= dj2; dm2 += 2)
                     {
-                        y += gsl_sf_coupling_3j(dj1, dj2, dj3, dm1, dm2, -dm1-dm2);
+                        y += gsl_sf_coupling_3j(dj1, dj2, dj3, dm1, dm2, -dm1 - dm2);
                     }
                 }
             }
@@ -152,6 +152,70 @@ void time_6j()
                     for (int dj5 = N; dj5 <= 2 * N; ++dj5)
                     {
                         for (int dj6 = N; dj6 <= 2 * N; ++dj6)
+                        {
+                            y += gsl_sf_coupling_6j(dj1, dj2, dj3, dj4, dj5, dj6);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    auto t3 = timer_clock::now();
+    std::cout << "time 6j, diff = " << x - y << std::endl;
+    std::cout << "this code time = " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << " ms"
+              << std::endl;
+    std::cout << "gsl library time = " << std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2).count()
+              << " ms" << std::endl;
+}
+
+void time_6j_always_valid()
+{
+    using timer_clock = std::chrono::high_resolution_clock;
+    auto t1 = timer_clock::now();
+    WignerSymbols wigner;
+    int N = 50;
+    wigner.reserve(N, "2bjmax", 6);
+    double x = 0;
+    for (int dj1 = 0; dj1 <= N; ++dj1)
+    {
+        for (int dj2 = 0; dj2 <= N; ++dj2)
+        {
+            for (int dj4 = 0; dj4 <= N; ++dj4)
+            {
+                for (int dj5 = wigner.isodd(dj1 + dj2 + dj4); dj5 <= N; dj5 += 2)
+                {
+                    int dj3_min = std::max(std::abs(dj1 - dj2), std::abs(dj4 - dj5));
+                    int dj3_max = std::min(dj1 + dj2, dj4 + dj5);
+                    int dj6_min = std::max(std::abs(dj1 - dj5), std::abs(dj2 - dj4));
+                    int dj6_max = std::min(dj1 + dj5, dj2 + dj4);
+                    for (int dj3 = dj3_min; dj3 <= dj3_max; dj3 += 2)
+                    {
+                        for (int dj6 = dj6_min; dj6 <= dj6_max; dj6 += 2)
+                        {
+                            x += wigner.f6j(dj1, dj2, dj3, dj4, dj5, dj6);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    auto t2 = timer_clock::now();
+    double y = 0;
+    for (int dj1 = 0; dj1 <= N; ++dj1)
+    {
+        for (int dj2 = 0; dj2 <= N; ++dj2)
+        {
+            for (int dj4 = 0; dj4 <= N; ++dj4)
+            {
+                for (int dj5 = wigner.isodd(dj1 + dj2 + dj4); dj5 <= N; dj5 += 2)
+                {
+                    int dj3_min = std::max(std::abs(dj1 - dj2), std::abs(dj4 - dj5));
+                    int dj3_max = std::min(dj1 + dj2, dj4 + dj5);
+                    int dj6_min = std::max(std::abs(dj1 - dj5), std::abs(dj2 - dj4));
+                    int dj6_max = std::min(dj1 + dj5, dj2 + dj4);
+                    for (int dj3 = dj3_min; dj3 <= dj3_max; dj3 += 2)
+                    {
+                        for (int dj6 = dj6_min; dj6 <= dj6_max; dj6 += 2)
                         {
                             y += gsl_sf_coupling_6j(dj1, dj2, dj3, dj4, dj5, dj6);
                         }
@@ -242,6 +306,82 @@ void time_9j()
               << " ms" << std::endl;
 }
 
+void time_9j_always_valid()
+{
+    using timer_clock = std::chrono::high_resolution_clock;
+    auto t1 = timer_clock::now();
+    WignerSymbols wigner;
+    int N = 10;
+    wigner.reserve(N, "Jmax", 9);
+    double x = 0;
+    for (int dj1 = 0; dj1 <= N; ++dj1)
+    {
+        for (int dj2 = 0; dj2 <= N; ++dj2)
+        {
+            for (int dj4 = 0; dj4 <= N; ++dj4)
+            {
+                for (int dj5 = 0; dj5 <= N; ++dj5)
+                {
+                    for (int dj3 = std::abs(dj1 - dj2); dj3 <= dj1 + dj2; dj3 += 2)
+                    {
+                        for (int dj6 = std::abs(dj4 - dj5); dj6 <= dj4 + dj5; dj6 += 2)
+                        {
+                            for (int dj7 = std::abs(dj1 - dj4); dj7 <= dj1 + dj4; dj7 += 2)
+                            {
+                                for (int dj8 = std::abs(dj2 - dj5); dj8 <= dj2 + dj5; dj8 += 2)
+                                {
+                                    int dj9_min = std::max(std::abs(dj3 - dj6), std::abs(dj7 - dj8));
+                                    for (int dj9 = dj9_min; dj9 <= 2 * N; dj9 += 2)
+                                    {
+                                        x += wigner.f9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    auto t2 = timer_clock::now();
+    double y = 0;
+    for (int dj1 = 0; dj1 <= N; ++dj1)
+    {
+        for (int dj2 = 0; dj2 <= N; ++dj2)
+        {
+            for (int dj4 = 0; dj4 <= N; ++dj4)
+            {
+                for (int dj5 = 0; dj5 <= N; ++dj5)
+                {
+                    for (int dj3 = std::abs(dj1 - dj2); dj3 <= dj1 + dj2; dj3 += 2)
+                    {
+                        for (int dj6 = std::abs(dj4 - dj5); dj6 <= dj4 + dj5; dj6 += 2)
+                        {
+                            for (int dj7 = std::abs(dj1 - dj4); dj7 <= dj1 + dj4; dj7 += 2)
+                            {
+                                for (int dj8 = std::abs(dj2 - dj5); dj8 <= dj2 + dj5; dj8 += 2)
+                                {
+                                    int dj9_min = std::max(std::abs(dj3 - dj6), std::abs(dj7 - dj8));
+                                    for (int dj9 = dj9_min; dj9 <= 2 * N; dj9 += 2)
+                                    {
+                                        y += gsl_sf_coupling_9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    auto t3 = timer_clock::now();
+    std::cout << "time 9j, diff = " << x - y << std::endl;
+    std::cout << "this code time = " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << " ms"
+              << std::endl;
+    std::cout << "gsl library time = " << std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2).count()
+              << " ms" << std::endl;
+}
+
 void test_3j()
 {
     WignerSymbols wigner;
@@ -270,6 +410,28 @@ void test_3j()
         }
     }
     std::cout << "test 3j, diff = " << diff << std::endl;
+}
+
+// test CG0
+void test_CG0()
+{
+    WignerSymbols wigner;
+    int N = 20;
+    wigner.reserve(2*N, "Jmax", 3);
+    double diff = 0;
+    for(int j1 = 0; j1 <= N; ++j1)
+    {
+        for(int j2 = 0; j2 <= N; ++j2)
+        {
+            for(int j3 = std::abs(j1-j2); j3 <= j1 + j2; ++j3)
+            {
+                double x = wigner.CG(2*j1, 2*j2, 2*j3, 0, 0, 0);
+                double y = wigner.CG0(j1, j2, j3);
+                diff += std::abs(x - y);
+            }
+        }
+    }
+    std::cout << "test CG0, diff = " << diff << std::endl;
 }
 
 void test_6j()
@@ -344,13 +506,16 @@ void test_9j()
 int main()
 {
     // test_3j();
+    test_CG0();
     // test_6j();
     // test_9j();
-    std::cout << "----- test where most results are zeros -----" << std::endl;
-    time_3j();
-    time_6j();
-    time_9j();
-    std::cout << "----- test where arguements are always valid -----" << std::endl;
-    time_3j_always_valid();
+    // std::cout << "----- test where most results are zeros -----" << std::endl;
+    // time_3j();
+    // time_6j();
+    // time_9j();
+    // std::cout << "----- test where arguements are always valid -----" << std::endl;
+    // time_3j_always_valid();
+    // time_6j_always_valid();
+    // time_9j_always_valid();
     return 0;
 }

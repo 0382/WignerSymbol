@@ -102,6 +102,18 @@ class WignerSymbols
         return iphase(high) * A * B;
     }
 
+    double CG0(int j1, int j2, int j3) const
+    {
+        if (!check_couple(2 * j1, 2 * j2, 2 * j3))
+            return 0;
+        int J = j1 + j2 + j3;
+        if (isodd(J))
+            return 0;
+        int g = J / 2;
+        return iphase(g - j3) * unsafe_binomial(g, j3) * unsafe_binomial(j3, g - j1) /
+               std::sqrt(unsafe_binomial(J + 1, 2 * j3 + 1) * unsafe_binomial(2 * j3, J - 2 * j1));
+    }
+
     double f3j(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3) const
     {
         return iphase((dj1 + (dj3 + dm3) / 2)) * std::sqrt(1. / (dj3 + 1)) * CG(dj1, dj2, dj3, -dm1, -dm2, dm3);
