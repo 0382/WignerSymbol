@@ -30,6 +30,8 @@ double WignerSymbols::f6j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6);
 double WignerSymbols::Racah(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6);
 // Wigner 9j symbol
 double WignerSymbols::f9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
+// Wigner d-function <j,m1|exp(i*beta*jy)|j,m2>
+double WignerSymbols::dfunc(int dj, int dm1, int dm2, double beta);
 ```
 Apart from `binomial`, all the functions use double of the real angular momentum quantum number to avoid half integers. So if you want to calculate `<10|1/2,1/2;1/2,-1/2>`, you should call like this,
 ```cpp

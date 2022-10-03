@@ -30,6 +30,8 @@ double WignerSymbols::f6j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6);
 double WignerSymbols::Racah(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6);
 // 9j系数
 double WignerSymbols::f9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
+// Wigner d函数 <j,m1|exp(i*beta*jy)|j,m2>
+double WignerSymbols::dfunc(int dj, int dm1, int dm2, double beta);
 ```
 其中，除了`binomial`函数之外，其余函数均使用真实角动量量子数的两倍作为参数，这是为了处理半整数角动量的情况。所以要计算`<10|1/2,1/2;1/2,-1/2>`这个CG系数，你需要调用的是
 ```cpp

@@ -9,7 +9,6 @@
 #include <string>
 #include <vector>
 
-
 namespace jshl
 {
 
@@ -42,6 +41,19 @@ class WignerSymbols
     {
         return dj1 >= 0 && dj2 >= 0 && is_same_parity(dj1 + dj2, dj3) && (dj3 <= (dj1 + dj2)) &&
                (dj3 >= std::abs(dj1 - dj2));
+    }
+
+    static double quick_pow(double x, int n)
+    {
+        double ans = 1;
+        while (n)
+        {
+            if (n & 1)
+                ans = ans * x;
+            n = n >> 1;
+            x = x * x;
+        }
+        return ans;
     }
 
     double binomial(int n, int k)
@@ -196,6 +208,29 @@ class WignerSymbols
             PABC += iphase(xh + yh + zh) * At * Bt * Ct / Pt_de;
         }
         return iphase(dth) * P0 * PABC;
+    }
+
+    double dfunc(int dj, int dm1, int dm2, double beta) const
+    {
+        if (!(check_jm(dj, dm1) && check_jm(dj, dm2)))
+            return 0.;
+        int jm1 = (dj - dm1) / 2;
+        int jp1 = (dj + dm1) / 2;
+        int jm2 = (dj - dm2) / 2;
+        int mm = (dm1 + dm2) / 2;
+        double c = std::cos(beta / 2);
+        double s = std::sin(beta / 2);
+        int kmin = std::max(0, -mm);
+        int kmax = std::min(jm1, jm2);
+        double sum = 0.;
+        for (int k = kmin; k <= kmax; ++k)
+        {
+            sum = -sum + unsafe_binomial(jm1, k) * unsafe_binomial(jp1, mm + k) * quick_pow(c, mm + 2 * k) *
+                             quick_pow(s, jm1 + jm2 - 2 * k);
+        }
+        sum = iphase(jm2 + kmax) * sum;
+        sum = sum * std::sqrt(unsafe_binomial(dj, jm1) / unsafe_binomial(dj, jm2));
+        return sum;
     }
 
     void reserve(int num, std::string type, int rank)
