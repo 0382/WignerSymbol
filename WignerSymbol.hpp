@@ -246,6 +246,97 @@ class WignerSymbols
         return iphase(dth) * P0 * PABC;
     }
 
+    // Buck et al. Nuc. Phys. A 600 (1996) 387-402
+    double Moshinsky(int N, int L, int n, int l, int n1, int l1, int n2, int l2, int lambda,
+                     double tan_beta = 1.0) const
+    {
+        // check energy conservation
+        const int f1 = 2 * n1 + l1;
+        const int f2 = 2 * n2 + l2;
+        const int F = 2 * N + L;
+        const int f = 2 * n + l;
+        if (f1 + f2 != f + F)
+            return 0;
+
+        const double sec_beta = std::sqrt(1. + tan_beta * tan_beta);
+        const double cos_beta = 1. / sec_beta;
+        const double sin_beta = tan_beta / sec_beta;
+
+        const int X = f1 + f2;
+        const int nl1 = n1 + l1;
+        const int nl2 = n2 + l2;
+        const int NL = N + L;
+        const int nl = n + l;
+        const double r1 = unsafe_binomial(2 * nl1 + 1, nl1) / (unsafe_binomial(f1 + 2, n1) * ((nl1 + 2) << l1));
+        const double r2 = unsafe_binomial(2 * nl2 + 1, nl2) / (unsafe_binomial(f2 + 2, n2) * ((nl2 + 2) << l2));
+        const double R = unsafe_binomial(2 * NL + 1, NL) / (unsafe_binomial(F + 2, N) * ((NL + 2) << L));
+        const double r = unsafe_binomial(2 * nl + 1, nl) / (unsafe_binomial(f + 2, n) * ((nl + 2) << l));
+        const double pre_sum = std::sqrt(r1 * r2 * R * r);
+        double sum = 0.;
+        for (int fa = 0; fa <= std::min(f1, F); ++fa)
+        {
+            const int fb = f1 - fa;
+            const int fc = F - fa;
+            const int fd = f2 - fc;
+            if (fd < 0)
+                continue;
+            const double t = quick_pow(sin_beta, fa + fd) * quick_pow(cos_beta, fb + fc) *
+                             std::sqrt(unsafe_binomial(f1 + 2, fa + 1) * unsafe_binomial(f2 + 2, fc + 1) *
+                                       unsafe_binomial(F + 2, fa + 1) * unsafe_binomial(f + 2, fb + 1));
+            for (int la = fa & 0x01; la <= fa; la += 2)
+            {
+                const int na = (fa - la) / 2;
+                const int nla = na + la;
+                const double ta =
+                    (((2 * la + 1) << la) * unsafe_binomial(fa + 1, na)) / unsafe_binomial(2 * nla + 1, nla);
+                for (int lb = std::abs(l1 - la); lb <= std::min(la + l1, fb); lb += 2)
+                {
+                    const int nb = (fb - lb) / 2;
+                    const int nlb = nb + lb;
+                    const double tb =
+                        (((2 * lb + 1) << lb) * unsafe_binomial(fb + 1, nb)) / unsafe_binomial(2 * nlb + 1, nlb);
+                    const int g1 = (la + lb + l1) / 2;
+                    const double CGab =
+                        unsafe_binomial(g1, l1) * unsafe_binomial(l1, g1 - la) /
+                        std::sqrt(unsafe_binomial(2 * g1 + 1, 2 * (g1 - l1)) * unsafe_binomial(2 * l1, 2 * (g1 - la)));
+                    for (int lc = std::abs(L - la); lc <= std::min(la + L, fc); lc += 2)
+                    {
+                        const int nc = (fc - lc) / 2;
+                        const int nlc = nc + lc;
+                        const double tc =
+                            (((2 * lc + 1) << lc) * unsafe_binomial(fc + 1, nc)) / unsafe_binomial(2 * nlc + 1, nlc);
+                        const int G = (la + lc + L) / 2;
+                        const double CGac =
+                            unsafe_binomial(G, L) * unsafe_binomial(L, G - la) /
+                            std::sqrt(unsafe_binomial(2 * G + 1, 2 * (G - L)) * unsafe_binomial(2 * L, 2 * (G - la)));
+                        const int ld_min = std::max(std::abs(l2 - lc), std::abs(l - lb));
+                        const int ld_max = std::min(fd, std::min(lb + l, lc + l2));
+                        for (int ld = ld_min; ld <= ld_max; ld += 2)
+                        {
+                            const int nd = (fd - ld) / 2;
+                            const int nld = nd + ld;
+                            const double td = (((2 * ld + 1) << ld) * unsafe_binomial(fd + 1, nd)) /
+                                              unsafe_binomial(2 * nld + 1, nld);
+                            const int g2 = (lc + ld + l2) / 2;
+                            const double CGcd = unsafe_binomial(g2, l2) * unsafe_binomial(l2, g2 - lc) /
+                                                std::sqrt(unsafe_binomial(2 * g2 + 1, 2 * (g2 - l2)) *
+                                                          unsafe_binomial(2 * l2, 2 * (g2 - lc)));
+                            const int g = (lb + ld + l) / 2;
+                            const double CGbd = unsafe_binomial(g, l) * unsafe_binomial(l, g - lb) /
+                                                std::sqrt(unsafe_binomial(2 * g + 1, 2 * (g - l)) *
+                                                          unsafe_binomial(2 * l, 2 * (g - lb)));
+                            const int phase = iphase(ld);
+                            const double ninej =
+                                f9j(2 * la, 2 * lb, 2 * l1, 2 * lc, 2 * ld, 2 * l2, 2 * L, 2 * l, 2 * lambda);
+                            sum += phase * t * ta * tb * tc * td * CGab * CGac * CGbd * CGcd * ninej;
+                        }
+                    }
+                }
+            }
+        }
+        return pre_sum * sum;
+    }
+
     double dfunc(int dj, int dm1, int dm2, double beta) const
     {
         if (!(check_jm(dj, dm1) && check_jm(dj, dm2)))

@@ -34,8 +34,10 @@ double WignerSymbols::Racah(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6
 double WignerSymbols::f9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
 // Wigner d-function <j,m1|exp(i*beta*jy)|j,m2>
 double WignerSymbols::dfunc(int dj, int dm1, int dm2, double beta);
+// Moshinsky bracket，Ref: Buck et al. Nuc. Phys. A 600 (1996) 387-402
+double WignerSymbols::Moshinsky(int N, int L, int n, int l, int n1, int l1, int n2, int l2, int lambda, double tan_beta = 1.0);
 ```
-Apart from `binomial` and `CG0`, all the functions use double of the real angular momentum quantum number to avoid half integers. So if you want to calculate `<10|1/2,1/2;1/2,-1/2>`, you should call like this,
+Apart from `binomial`, `CG0` and `Moshinsky`, all the functions use double of the real angular momentum quantum number to avoid half integers. So if you want to calculate `<10|1/2,1/2;1/2,-1/2>`, you should call like this,
 ```cpp
 WignerSymbols wigner;
 double x = wigner.CG(1,1,2,1,-1,0);
@@ -51,12 +53,12 @@ void WignerSymbols::reserve(int num, std::string type, int rank)
 ```
 and its parameters means
 
-|                                       |    Calculate range    |   CG & 3j   | 6j & Racah  |     9j      |
-| :-----------------------------------: | :-------------------: | :---------: | :---------: | :---------: |
-|          meaning of `type`            | `type`\\\\`rank`      |      3      |      6      |      9      |
-|        max angular momentum           |    `"Jmax"`           | `3*Jmax+1`  | `4*Jmax+1`  | `5*Jmax+1`  |
-| max two-body coupled angular momentum |   `"2bjmax"`          | `2*jmax+1`  | `3*jmax+1`  | `4*jmax+1`  |
-|            max binomial               |    `"nmax"`           |   `nmax`    |   `namx`    |   `nmax`    |
+|                                       | Calculate range  |  CG & 3j   | 6j & Racah |     9j     |
+| :-----------------------------------: | :--------------: | :--------: | :--------: | :--------: |
+|           meaning of `type`           | `type`\\\\`rank` |     3      |     6      |     9      |
+|         max angular momentum          |     `"Jmax"`     | `3*Jmax+1` | `4*Jmax+1` | `5*Jmax+1` |
+| max two-body coupled angular momentum |    `"2bjmax"`    | `2*jmax+1` | `3*jmax+1` | `4*jmax+1` |
+|             max binomial              |     `"nmax"`     |   `nmax`   |   `namx`   |   `nmax`   |
 
 The value in the table means the minimum binomial range to guarantee the Wigner Symbol calculation. You do not need to rememmber those values. You just need to find the maximum angular momentum in you canculation, then call the `reserve` function.
 

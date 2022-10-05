@@ -34,8 +34,10 @@ double WignerSymbols::Racah(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6
 double WignerSymbols::f9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
 // Wigner d函数 <j,m1|exp(i*beta*jy)|j,m2>
 double WignerSymbols::dfunc(int dj, int dm1, int dm2, double beta);
+// Moshinsky 括号，参考: Buck et al. Nuc. Phys. A 600 (1996) 387-402
+double WignerSymbols::Moshinsky(int N, int L, int n, int l, int n1, int l1, int n2, int l2, int lambda, double tan_beta = 1.0);
 ```
-其中，除了`binomial`和`CG0`函数之外，其余函数均使用真实角动量量子数的两倍作为参数，这是为了处理半整数角动量的情况。所以要计算`<10|1/2,1/2;1/2,-1/2>`这个CG系数，你需要调用的是
+其中，除了`binomial`、`CG0`和`Moshinsky`函数之外，其余函数均使用真实角动量量子数的两倍作为参数，这是为了处理半整数角动量的情况。所以要计算`<10|1/2,1/2;1/2,-1/2>`这个CG系数，你需要调用的是
 ```cpp
 WignerSymbols wigner;
 double x = wigner.CG(1,1,2,1,-1,0);
@@ -51,12 +53,12 @@ void WignerSymbols::reserve(int num, std::string type, int rank)
 ```
 其含义如下
 
-|                       |    计算范围    |   CG & 3j   | 6j & Racah  |     9j      |
-| :-------------------: | :------------: | :---------: | :---------: | :---------: |
-|       `type`的意义    | `type`\\`rank` |      3      |      6      |      9      |
-|      最大角动量模式     |    `"Jmax"`    | `3*Jmax+1`  | `4*Jmax+1`  | `5*Jmax+1`  |
-|    最大两体角动量模式    |   `"2bjmax"`    | `2*jmax+1` | `3*jmax+1` | `4*jmax+1` |
-|    最大二项式系数模式    |    `"nmax"`    |   `nmax`    |   `namx`    |   `nmax`    |
+|                    |    计算范围    |  CG & 3j   | 6j & Racah |     9j     |
+| :----------------: | :------------: | :--------: | :--------: | :--------: |
+|    `type`的意义    | `type`\\`rank` |     3      |     6      |     9      |
+|   最大角动量模式   |    `"Jmax"`    | `3*Jmax+1` | `4*Jmax+1` | `5*Jmax+1` |
+| 最大两体角动量模式 |   `"2bjmax"`   | `2*jmax+1` | `3*jmax+1` | `4*jmax+1` |
+| 最大二项式系数模式 |    `"nmax"`    |   `nmax`   |   `namx`   |   `nmax`   |
 
 表格中的数据是最极端条件下保证不溢出最少要存多少二项式系数。不过使用的时候你不需要记住这些数值，只需要根据你的程序中出现的最大角动量和计算范围调用一下`reserve`函数就好了。
 

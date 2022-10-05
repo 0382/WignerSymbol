@@ -417,15 +417,15 @@ void test_CG0()
 {
     WignerSymbols wigner;
     int N = 20;
-    wigner.reserve(2*N, "Jmax", 3);
+    wigner.reserve(2 * N, "Jmax", 3);
     double diff = 0;
-    for(int j1 = 0; j1 <= N; ++j1)
+    for (int j1 = 0; j1 <= N; ++j1)
     {
-        for(int j2 = 0; j2 <= N; ++j2)
+        for (int j2 = 0; j2 <= N; ++j2)
         {
-            for(int j3 = std::abs(j1-j2); j3 <= j1 + j2; ++j3)
+            for (int j3 = std::abs(j1 - j2); j3 <= j1 + j2; ++j3)
             {
-                double x = wigner.CG(2*j1, 2*j2, 2*j3, 0, 0, 0);
+                double x = wigner.CG(2 * j1, 2 * j2, 2 * j3, 0, 0, 0);
                 double y = wigner.CG0(j1, j2, j3);
                 diff += std::abs(x - y);
             }
@@ -510,12 +510,26 @@ int main()
     // test_6j();
     // test_9j();
     // std::cout << "----- test where most results are zeros -----" << std::endl;
-    time_3j();
+    // time_3j();
     // time_6j();
     // time_9j();
     // std::cout << "----- test where arguements are always valid -----" << std::endl;
-    time_3j_always_valid();
+    // time_3j_always_valid();
     // time_6j_always_valid();
     // time_9j_always_valid();
+    WignerSymbols wigner;
+    std::cout << wigner.Moshinsky(0, 0, 0, 0, 0, 0, 0, 0, 0) << '\n';
+    std::cout << wigner.Moshinsky(0, 1, 0, 0, 0, 0, 0, 1, 1) << '\n';
+    std::cout << wigner.Moshinsky(0, 0, 0, 1, 0, 0, 0, 1, 1) << '\n';
+    std::cout << wigner.Moshinsky(0, 2, 0, 0, 0, 0, 0, 2, 2) << '\n';
+    std::cout << wigner.Moshinsky(0, 1, 0, 1, 0, 0, 0, 2, 2) << '\n';
+    std::cout << wigner.Moshinsky(0, 0, 0, 2, 0, 0, 0, 2, 2) << '\n';
+    std::cout << wigner.Moshinsky(1, 0, 0, 0, 0, 1, 0, 1, 0) << '\n';
+    std::cout << wigner.Moshinsky(0, 1, 0, 1, 0, 1, 0, 1, 0) << '\n';
+    std::cout << wigner.Moshinsky(0, 0, 1, 0, 0, 1, 0, 1, 0) << '\n';
+    std::cout << wigner.Moshinsky(0, 1, 0, 1, 0, 1, 0, 1, 1) << '\n';
+    std::cout << wigner.Moshinsky(0, 2, 0, 0, 0, 1, 0, 1, 2) << '\n';
+    std::cout << wigner.Moshinsky(0, 1, 0, 1, 0, 1, 0, 1, 2) << '\n';
+    std::cout << wigner.Moshinsky(0, 0, 0, 2, 0, 1, 0, 1, 2) << '\n';
     return 0;
 }
