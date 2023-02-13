@@ -1,0 +1,16 @@
+name: test
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: run test
+        run: g++ test.cpp -O3 -lgsl -o test.exe && ./test.exe
+
+      - name: run benchmark
+        run: g++ benchmark.cpp -O3 -lgsl -o benchmark.exe && ./benchmark.exe
