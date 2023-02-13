@@ -8,8 +8,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Install
-        run: apt install libgsl-dev
 
       - name: run test
         run: g++ test.cpp -O3 -lgsl -o test.exe && ./test.exe
