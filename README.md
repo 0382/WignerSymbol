@@ -9,7 +9,7 @@ Calculate CG coefficient, Racah coefficient, and Wigner 3j, 6j, 9j coefficient. 
 Just copy the `WignerSymbol.hpp` file to you project, and include it, and then you can use it.
 
 ```cpp
-using namespace jshl;
+using namespace util;
 WignerSymbols wigner;
 int djmax = 21;
 wigner.reserve(djmax, "2bjmax", 6);

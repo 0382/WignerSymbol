@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-namespace jshl
+namespace util
 {
 
 // clang-format off
@@ -439,6 +439,6 @@ class WignerSymbols
     }
 };
 
-} // end namespace jshl
+} // end namespace util
 
 #endif // JSHL_WIGNERSYMBOL_HPP

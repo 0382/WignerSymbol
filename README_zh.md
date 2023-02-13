@@ -9,7 +9,7 @@
 这是一个单头文件库，直接把文件复制到你的项目里面。
 
 ```cpp
-using namespace jshl;
+using namespace util;
 WignerSymbols wigner;
 int djmax = 21;
 wigner.reserve(djmax, "2bjmax", 6);
