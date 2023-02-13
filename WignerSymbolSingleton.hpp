@@ -41,6 +41,13 @@ constexpr uint64_t u64_binomial_data[] = {1ull,1ull,1ull,2ull,1ull,3ull,1ull,4ul
 class WignerSymbols
 {
   public:
+    static WignerSymbols &instance()
+    {
+        static WignerSymbols wigner;
+        return wigner;
+    }
+
+  private:
     WignerSymbols() : _nmax(67)
     {
         // initialize the data
@@ -78,6 +85,13 @@ class WignerSymbols
         return ans;
     }
 
+    double unsafe_binomial(int n, int k) const
+    {
+        k = std::min(k, n - k);
+        return _binomial_data[_binomial_index(n, k)];
+    }
+
+  public:
     double binomial(int n, int k) const
     {
         if (unsigned(n) > unsigned(_nmax) || unsigned(k) > unsigned(n))
@@ -87,12 +101,6 @@ class WignerSymbols
             k = std::min(k, n - k);
             return _binomial_data[_binomial_index(n, k)];
         }
-    }
-
-    double unsafe_binomial(int n, int k) const
-    {
-        k = std::min(k, n - k);
-        return _binomial_data[_binomial_index(n, k)];
     }
 
     double CG(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3) const
@@ -460,6 +468,66 @@ class WignerSymbols
         _nmax = nmax;
     }
 };
+
+inline void wigner_init(int num, std::string type, int rank)
+{
+    WignerSymbols &wigner = WignerSymbols::instance();
+    wigner.reserve(num, type, rank);
+}
+
+inline double trunc_binomial(int n, int k)
+{
+    const WignerSymbols &wigner = WignerSymbols::instance();
+    return wigner.binomial(n, k);
+}
+
+inline double CG(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3)
+{
+    const WignerSymbols &wigner = WignerSymbols::instance();
+    return wigner.CG(dj1, dj2, dj3, dm1, dm2, dm3);
+}
+
+inline double CG0(int j1, int j2, int j3)
+{
+    const WignerSymbols &wigner = WignerSymbols::instance();
+    return wigner.CG0(j1, j2, j3);
+}
+
+inline double wigner_3j(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3)
+{
+    const WignerSymbols &wigner = WignerSymbols::instance();
+    return wigner.f3j(dj1, dj2, dj3, dm1, dm2, dm3);
+}
+
+inline double wigner_6j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6)
+{
+    const WignerSymbols &wigner = WignerSymbols::instance();
+    return wigner.f6j(dj1, dj2, dj3, dj4, dj5, dj6);
+}
+
+inline double Racah(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6)
+{
+    const WignerSymbols &wigner = WignerSymbols::instance();
+    return wigner.Racah(dj1, dj2, dj3, dj4, dj5, dj6);
+}
+
+inline double wigner_9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9)
+{
+    const WignerSymbols &wigner = WignerSymbols::instance();
+    return wigner.f9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
+}
+
+inline double dfunc(int dj, int dm1, int dm2, double beta)
+{
+    const WignerSymbols &wigner = WignerSymbols::instance();
+    return wigner.dfunc(dj, dm1, dm2, beta);
+}
+
+inline double Moshinsky(int N, int L, int n, int l, int n1, int l1, int n2, int l2, int lambda, double tan_beta = 1.0)
+{
+    const WignerSymbols &wigner = WignerSymbols::instance();
+    return wigner.Moshinsky(N, L, n, l, n1, l1, n2, l2, lambda, tan_beta);
+}
 
 } // end namespace util
 

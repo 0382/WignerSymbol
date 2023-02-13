@@ -115,3 +115,34 @@ The `"nmax"` mode directly set `nmax`, and the `rank` parameter is ignored. This
 The `reserve` is **not** thread safe. So you shuld not call `reserve` function dymanically in a multi-threading program. The correct way to use this package is find the maximum angular momentum quantum number in you system, and call `reserve` at the beginning of the code, and then don't call it any more.
 
 Howerver, you can create one `WignerSymbols` object for each thread, they will work independently. Because the sotred `binomial`s do not cost too many memory for most calculation, so I don't use `static` member to store them, each object will take it own storage. And also because of the small memory cost, please feel free to create several `WignerSymbols` objects at the same time.
+
+### Singleton version
+
+We also offers a singleton version of the package: the file `WignerSymbolSingleton.hpp`. You can use it like
+```c++
+using namespace util;
+wigner_init(21, "2bjmax", 6);
+double x = wigner_6j(dj1, dj2, dj3, dj4, dj5, dj6);
+```
+In this way, you don't need create objects anywhere. It offers the following functons
+```c++
+// binomial, `trunc` is to remind that is may return 0 for very large `n`
+double trunc_binomial(int n, int k);
+// CG coefficient
+double CG(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3);
+// CG coefficient with m1 == m2 == m3 == 0
+double CG0(int j1, int j2, int j3);
+// Wigner 3j symbol
+double wigner_3j(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3);
+// Wigner 6j symbol
+double wigner_6j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6);
+// Racah coefficient
+double Racah(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6);
+// Wigner 9j symbol
+double wigner_9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
+// Wigner d-function <j,m1|exp(i*beta*jy)|j,m2>
+double dfunc(int dj, int dm1, int dm2, double beta);
+// Moshinsky bracket，Ref: Buck et al. Nuc. Phys. A 600 (1996) 387-402
+double Moshinsky(int N, int L, int n, int l, int n1, int l1, int n2, int l2, int lambda, double tan_beta = 1.0);
+```
+And `wigner_init` works same as `WignerSymbols::reserve`.

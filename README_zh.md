@@ -117,3 +117,36 @@ nmax = 4*Jmax + 1 = 85
 注意：`reserve`函数**不是**线程安全的，如果你的程序是并行的，不要动态地调用`reserve`函数。正确是使用本库的方法是，先计算出体系最大角动量，然后在程序开始时调用一次`reserve`函数，之后就不应该继续调用这个函数了。
 
 不过，你可以为每个线程创建一个`WignerSymbols`对象。由于存储`binomial`系数所占的内存实在很小，我没有用静态成员存储它们，这也意味着各线程之间的对象是完全互不干扰的。同样由于占用内存其实很小，所以同时创建好几个`WignerSymbols`并没有什么代价，是完全可以的。
+
+### 单例模式版本
+
+我们也提供了一个单例模式版本的代码，也是一个文件：`WignerSymbolSingleton.hpp`。用法如下
+```cpp
+using namespace util;
+wigner_init(21, "2bjmax", 6);
+double x = wigner_6j(dj1, dj2, dj3, dj4, dj5, dj6);
+```
+这样你使用的都是全局对象，不用在每个需要的地方创建对象。
+
+函数列表如下
+```cpp
+// 二项式系数，`turnc`是为了提醒在`n`很大时它可能失效（返回零）
+double trunc_binomial(int n, int k);
+// CG系数
+double CG(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3);
+// CG 系数特殊情况 m1 == m2 == m3 == 0
+double CG0(int j1, int j2, int j3);
+// 3j系数
+double wigner_3j(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3);
+// 6j系数
+double wigner_6j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6);
+// Racah系数
+double Racah(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6);
+// 9j系数
+double wigner_9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
+// Wigner d函数 <j,m1|exp(i*beta*jy)|j,m2>
+double dfunc(int dj, int dm1, int dm2, double beta);
+// Moshinsky 括号，参考: Buck et al. Nuc. Phys. A 600 (1996) 387-402
+double Moshinsky(int N, int L, int n, int l, int n1, int l1, int n2, int l2, int lambda, double tan_beta = 1.0);
+```
+使用`wigner_init`初始化空间，用法和非单例的`WignerSymbols::reserve`是一样的。
