@@ -284,15 +284,14 @@ class WignerSymbols
         const double cos_beta = 1. / sec_beta;
         const double sin_beta = tan_beta / sec_beta;
 
-        const int X = f1 + f2;
         const int nl1 = n1 + l1;
         const int nl2 = n2 + l2;
         const int NL = N + L;
         const int nl = n + l;
-        const double r1 = unsafe_binomial(2 * nl1 + 1, nl1) / (unsafe_binomial(f1 + 2, n1) * ((nl1 + 2) << l1));
-        const double r2 = unsafe_binomial(2 * nl2 + 1, nl2) / (unsafe_binomial(f2 + 2, n2) * ((nl2 + 2) << l2));
-        const double R = unsafe_binomial(2 * NL + 1, NL) / (unsafe_binomial(F + 2, N) * ((NL + 2) << L));
-        const double r = unsafe_binomial(2 * nl + 1, nl) / (unsafe_binomial(f + 2, n) * ((nl + 2) << l));
+        const double r1 = unsafe_binomial(2 * nl1 + 1, nl1) / (unsafe_binomial(f1 + 2, n1) * (uint64_t(nl1 + 2) << l1));
+        const double r2 = unsafe_binomial(2 * nl2 + 1, nl2) / (unsafe_binomial(f2 + 2, n2) * (uint64_t(nl2 + 2) << l2));
+        const double R = unsafe_binomial(2 * NL + 1, NL) / (unsafe_binomial(F + 2, N) * (uint64_t(NL + 2) << L));
+        const double r = unsafe_binomial(2 * nl + 1, nl) / (unsafe_binomial(f + 2, n) * (uint64_t(nl + 2) << l));
         const double pre_sum = std::sqrt(r1 * r2 * R * r);
         double sum = 0.;
         for (int fa = 0; fa <= std::min(f1, F); ++fa)
@@ -310,13 +309,13 @@ class WignerSymbols
                 const int na = (fa - la) / 2;
                 const int nla = na + la;
                 const double ta =
-                    (((2 * la + 1) << la) * unsafe_binomial(fa + 1, na)) / unsafe_binomial(2 * nla + 1, nla);
+                    ((uint64_t(2 * la + 1) << la) * unsafe_binomial(fa + 1, na)) / unsafe_binomial(2 * nla + 1, nla);
                 for (int lb = std::abs(l1 - la); lb <= std::min(la + l1, fb); lb += 2)
                 {
                     const int nb = (fb - lb) / 2;
                     const int nlb = nb + lb;
-                    const double tb =
-                        (((2 * lb + 1) << lb) * unsafe_binomial(fb + 1, nb)) / unsafe_binomial(2 * nlb + 1, nlb);
+                    const double tb = ((uint64_t(2 * lb + 1) << lb) * unsafe_binomial(fb + 1, nb)) /
+                                      unsafe_binomial(2 * nlb + 1, nlb);
                     const int g1 = (la + lb + l1) / 2;
                     const double CGab =
                         unsafe_binomial(g1, l1) * unsafe_binomial(l1, g1 - la) /
@@ -325,8 +324,8 @@ class WignerSymbols
                     {
                         const int nc = (fc - lc) / 2;
                         const int nlc = nc + lc;
-                        const double tc =
-                            (((2 * lc + 1) << lc) * unsafe_binomial(fc + 1, nc)) / unsafe_binomial(2 * nlc + 1, nlc);
+                        const double tc = ((uint16_t(2 * lc + 1) << lc) * unsafe_binomial(fc + 1, nc)) /
+                                          unsafe_binomial(2 * nlc + 1, nlc);
                         const int G = (la + lc + L) / 2;
                         const double CGac =
                             unsafe_binomial(G, L) * unsafe_binomial(L, G - la) /
@@ -337,7 +336,7 @@ class WignerSymbols
                         {
                             const int nd = (fd - ld) / 2;
                             const int nld = nd + ld;
-                            const double td = (((2 * ld + 1) << ld) * unsafe_binomial(fd + 1, nd)) /
+                            const double td = ((uint64_t(2 * ld + 1) << ld) * unsafe_binomial(fd + 1, nd)) /
                                               unsafe_binomial(2 * nld + 1, nld);
                             const int g2 = (lc + ld + l2) / 2;
                             const double CGcd = unsafe_binomial(g2, l2) * unsafe_binomial(l2, g2 - lc) /
