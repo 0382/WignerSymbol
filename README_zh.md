@@ -37,6 +37,8 @@ double WignerSymbols::f6j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6);
 double WignerSymbols::Racah(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6);
 // 9j系数
 double WignerSymbols::f9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
+// normalized 9j系数
+double WignerSymbols::f9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
 // Wigner d函数 <j,m1|exp(i*beta*jy)|j,m2>
 double WignerSymbols::dfunc(int dj, int dm1, int dm2, double beta);
 // Moshinsky 括号，参考: Buck et al. Nuc. Phys. A 600 (1996) 387-402
@@ -123,22 +125,28 @@ nmax = 4*Jmax + 1 = 85
 
 不过，你可以为每个线程创建一个`WignerSymbols`对象。由于存储`binomial`系数所占的内存实在很小，我没有用静态成员存储它们，这也意味着各线程之间的对象是完全互不干扰的。同样由于占用内存其实很小，所以同时创建好几个`WignerSymbols`并没有什么代价，是完全可以的。
 
-### 单例模式版本
+### 内联函数
 
-我们也提供了一个单例模式版本的代码，也是一个文件：`WignerSymbolSingleton.hpp`。用法如下
+c++17允许我们定义内联变量。本库定义了一个全局变量`inline WignerSymbols wigner;`，并以此定义了一些内联函数来通过这个全局的`WignerSymbols`计算各种系数。这样你就不用到处定义`WignerSymbols`了。
+
+使用方法
 ```cpp
 using namespace util;
 wigner_init(21, "2bjmax", 6);
 double x = wigner_6j(dj1, dj2, dj3, dj4, dj5, dj6);
 ```
-这样你使用的都是全局对象，不用在每个需要的地方创建对象。
+
 
 函数列表如下
 ```cpp
-// 二项式系数，`turnc`是为了提醒在`n`很大时它可能失效（返回零）
-double trunc_binomial(int n, int k);
+// 预计算二项式系数表
+void wigner_init(int num, std::string type, int rank);
+// 快速访问二项式系数表，在`n`很大时它可能失效（返回零）
+double fast_binomial(int n, int k);
 // CG系数
 double CG(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3);
+// 两个 1/2 自旋的CG系数
+double CGspin(int ds1, int ds2, int S);
 // CG 系数特殊情况 m1 == m2 == m3 == 0
 double CG0(int j1, int j2, int j3);
 // 3j系数
@@ -149,6 +157,8 @@ double wigner_6j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6);
 double Racah(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6);
 // 9j系数
 double wigner_9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
+// normalized 9j系数
+double wigner_norm9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
 // Wigner d函数 <j,m1|exp(i*beta*jy)|j,m2>
 double dfunc(int dj, int dm1, int dm2, double beta);
 // Moshinsky 括号，参考: Buck et al. Nuc. Phys. A 600 (1996) 387-402

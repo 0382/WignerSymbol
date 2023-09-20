@@ -103,20 +103,20 @@ class WignerSymbols
             return 0;
         if (dm1 + dm2 != dm3)
             return 0;
-        int J = (dj1 + dj2 + dj3) / 2;
-        int jm1 = J - dj1;
-        int jm2 = J - dj2;
-        int jm3 = J - dj3;
-        int j1mm1 = (dj1 - dm1) / 2;
-        int j2mm2 = (dj2 - dm2) / 2;
-        int j3mm3 = (dj3 - dm3) / 2;
-        int j2pm2 = (dj2 + dm2) / 2;
-        double A = std::sqrt(unsafe_binomial(dj1, jm2) * unsafe_binomial(dj2, jm3) /
-                             (unsafe_binomial(J + 1, jm3) * unsafe_binomial(dj1, j1mm1) * unsafe_binomial(dj2, j2mm2) *
-                              unsafe_binomial(dj3, j3mm3)));
+        const int J = (dj1 + dj2 + dj3) / 2;
+        const int jm1 = J - dj1;
+        const int jm2 = J - dj2;
+        const int jm3 = J - dj3;
+        const int j1mm1 = (dj1 - dm1) / 2;
+        const int j2mm2 = (dj2 - dm2) / 2;
+        const int j3mm3 = (dj3 - dm3) / 2;
+        const int j2pm2 = (dj2 + dm2) / 2;
+        const double A = std::sqrt(unsafe_binomial(dj1, jm2) * unsafe_binomial(dj2, jm3) /
+                                   (unsafe_binomial(J + 1, jm3) * unsafe_binomial(dj1, j1mm1) *
+                                    unsafe_binomial(dj2, j2mm2) * unsafe_binomial(dj3, j3mm3)));
         double B = 0;
-        int low = std::max(0, std::max(j1mm1 - jm2, j2pm2 - jm1));
-        int high = std::min(jm3, std::min(j1mm1, j2pm2));
+        const int low = std::max(0, std::max(j1mm1 - jm2, j2pm2 - jm1));
+        const int high = std::min(jm3, std::min(j1mm1, j2pm2));
         for (auto z = low; z <= high; ++z)
         {
             B = -B + unsafe_binomial(jm3, z) * unsafe_binomial(jm2, j1mm1 - z) * unsafe_binomial(jm1, j2pm2 - z);
@@ -128,10 +128,10 @@ class WignerSymbols
     {
         if (!check_couple(2 * j1, 2 * j2, 2 * j3))
             return 0;
-        int J = j1 + j2 + j3;
+        const int J = j1 + j2 + j3;
         if (isodd(J))
             return 0;
-        int g = J / 2;
+        const int g = J / 2;
         return iphase(g - j3) * unsafe_binomial(g, j3) * unsafe_binomial(j3, g - j1) /
                std::sqrt(unsafe_binomial(J + 1, 2 * j3 + 1) * unsafe_binomial(2 * j3, J - 2 * j1));
     }
@@ -144,20 +144,20 @@ class WignerSymbols
             return 0;
         if (dm1 + dm2 + dm3 != 0)
             return 0;
-        int J = (dj1 + dj2 + dj3) / 2;
-        int jm1 = J - dj1;
-        int jm2 = J - dj2;
-        int jm3 = J - dj3;
-        int j1mm1 = (dj1 - dm1) / 2;
-        int j2mm2 = (dj2 - dm2) / 2;
-        int j3mm3 = (dj3 - dm3) / 2;
-        int j1pm1 = (dj1 + dm1) / 2;
-        double A = std::sqrt(unsafe_binomial(dj1, jm2) * unsafe_binomial(dj2, jm1) /
-                             ((J + 1) * unsafe_binomial(J, jm3) * unsafe_binomial(dj1, j1mm1) *
-                              unsafe_binomial(dj2, j2mm2) * unsafe_binomial(dj3, j3mm3)));
+        const int J = (dj1 + dj2 + dj3) / 2;
+        const int jm1 = J - dj1;
+        const int jm2 = J - dj2;
+        const int jm3 = J - dj3;
+        const int j1mm1 = (dj1 - dm1) / 2;
+        const int j2mm2 = (dj2 - dm2) / 2;
+        const int j3mm3 = (dj3 - dm3) / 2;
+        const int j1pm1 = (dj1 + dm1) / 2;
+        const double A = std::sqrt(unsafe_binomial(dj1, jm2) * unsafe_binomial(dj2, jm1) /
+                                   ((J + 1) * unsafe_binomial(J, jm3) * unsafe_binomial(dj1, j1mm1) *
+                                    unsafe_binomial(dj2, j2mm2) * unsafe_binomial(dj3, j3mm3)));
         double B = 0;
-        int low = std::max(0, std::max(j1pm1 - jm2, j2mm2 - jm1));
-        int high = std::min(jm3, std::min(j1pm1, j2mm2));
+        const int low = std::max(0, std::max(j1pm1 - jm2, j2mm2 - jm1));
+        const int high = std::min(jm3, std::min(j1pm1, j2mm2));
         for (auto z = low; z <= high; ++z)
         {
             B = -B + unsafe_binomial(jm3, z) * unsafe_binomial(jm2, j1pm1 - z) * unsafe_binomial(jm1, j2mm2 - z);
@@ -170,23 +170,23 @@ class WignerSymbols
         if (!(check_couple(dj1, dj2, dj3) && check_couple(dj1, dj5, dj6) && check_couple(dj4, dj2, dj6) &&
               check_couple(dj4, dj5, dj3)))
             return 0;
-        int j123 = (dj1 + dj2 + dj3) / 2;
-        int j156 = (dj1 + dj5 + dj6) / 2;
-        int j426 = (dj4 + dj2 + dj6) / 2;
-        int j453 = (dj4 + dj5 + dj3) / 2;
-        int jpm123 = (dj1 + dj2 - dj3) / 2;
-        int jpm132 = (dj1 + dj3 - dj2) / 2;
-        int jpm231 = (dj2 + dj3 - dj1) / 2;
-        int jpm156 = (dj1 + dj5 - dj6) / 2;
-        int jpm426 = (dj4 + dj2 - dj6) / 2;
-        int jpm453 = (dj4 + dj5 - dj3) / 2;
-        double A = std::sqrt(unsafe_binomial(j123 + 1, dj1 + 1) * unsafe_binomial(dj1, jpm123) /
-                             (unsafe_binomial(j156 + 1, dj1 + 1) * unsafe_binomial(dj1, jpm156) *
-                              unsafe_binomial(j453 + 1, dj4 + 1) * unsafe_binomial(dj4, jpm453) *
-                              unsafe_binomial(j426 + 1, dj4 + 1) * unsafe_binomial(dj4, jpm426)));
+        const int j123 = (dj1 + dj2 + dj3) / 2;
+        const int j156 = (dj1 + dj5 + dj6) / 2;
+        const int j426 = (dj4 + dj2 + dj6) / 2;
+        const int j453 = (dj4 + dj5 + dj3) / 2;
+        const int jpm123 = (dj1 + dj2 - dj3) / 2;
+        const int jpm132 = (dj1 + dj3 - dj2) / 2;
+        const int jpm231 = (dj2 + dj3 - dj1) / 2;
+        const int jpm156 = (dj1 + dj5 - dj6) / 2;
+        const int jpm426 = (dj4 + dj2 - dj6) / 2;
+        const int jpm453 = (dj4 + dj5 - dj3) / 2;
+        const double A = std::sqrt(unsafe_binomial(j123 + 1, dj1 + 1) * unsafe_binomial(dj1, jpm123) /
+                                   (unsafe_binomial(j156 + 1, dj1 + 1) * unsafe_binomial(dj1, jpm156) *
+                                    unsafe_binomial(j453 + 1, dj4 + 1) * unsafe_binomial(dj4, jpm453) *
+                                    unsafe_binomial(j426 + 1, dj4 + 1) * unsafe_binomial(dj4, jpm426)));
         double B = 0;
-        int low = std::max(j123, std::max(j156, std::max(j426, j453)));
-        int high = std::min(jpm123 + j453, std::min(jpm132 + j426, jpm231 + j156));
+        const int low = std::max(j123, std::max(j156, std::max(j426, j453)));
+        const int high = std::min(jpm123 + j453, std::min(jpm132 + j426, jpm231 + j156));
         for (auto x = low; x <= high; ++x)
         {
             B = -B + unsafe_binomial(x + 1, j123 + 1) * unsafe_binomial(jpm123, x - j453) *
@@ -205,58 +205,58 @@ class WignerSymbols
         if (!(check_couple(dj1, dj2, dj3) && check_couple(dj4, dj5, dj6) && check_couple(dj7, dj8, dj9) &&
               check_couple(dj1, dj4, dj7) && check_couple(dj2, dj5, dj8) && check_couple(dj3, dj6, dj9)))
             return 0;
-        int j123 = (dj1 + dj2 + dj3) / 2;
-        int j456 = (dj4 + dj5 + dj6) / 2;
-        int j789 = (dj7 + dj8 + dj9) / 2;
-        int j147 = (dj1 + dj4 + dj7) / 2;
-        int j258 = (dj2 + dj5 + dj8) / 2;
-        int j369 = (dj3 + dj6 + dj9) / 2;
-        int pm123 = (dj1 + dj2 - dj3) / 2;
-        int pm132 = (dj1 + dj3 - dj2) / 2;
-        int pm231 = (dj2 + dj3 - dj1) / 2;
-        int pm456 = (dj4 + dj5 - dj6) / 2;
-        int pm465 = (dj4 + dj6 - dj5) / 2;
-        int pm564 = (dj5 + dj6 - dj4) / 2;
-        int pm789 = (dj7 + dj8 - dj9) / 2;
-        int pm798 = (dj7 + dj9 - dj8) / 2;
-        int pm897 = (dj8 + dj9 - dj7) / 2;
-        double P0_nu = unsafe_binomial(j123 + 1, dj1 + 1) * unsafe_binomial(dj1, pm123) * //
-                       unsafe_binomial(j456 + 1, dj5 + 1) * unsafe_binomial(dj5, pm456) * //
-                       unsafe_binomial(j789 + 1, dj9 + 1) * unsafe_binomial(dj9, pm798);
-        double P0_de = unsafe_binomial(j147 + 1, dj1 + 1) * unsafe_binomial(dj1, (dj1 + dj4 - dj7) / 2) *
-                       unsafe_binomial(j258 + 1, dj5 + 1) * unsafe_binomial(dj5, (dj2 + dj5 - dj8) / 2) *
-                       unsafe_binomial(j369 + 1, dj9 + 1) * unsafe_binomial(dj9, (dj3 + dj9 - dj6) / 2);
-        double P0 = std::sqrt(P0_nu / P0_de);
-        int dtl = std::max(std::abs(dj2 - dj6), std::max(std::abs(dj4 - dj8), std::abs(dj1 - dj9)));
-        int dth = std::min(dj2 + dj6, std::min(dj4 + dj8, dj1 + dj9));
+        const int j123 = (dj1 + dj2 + dj3) / 2;
+        const int j456 = (dj4 + dj5 + dj6) / 2;
+        const int j789 = (dj7 + dj8 + dj9) / 2;
+        const int j147 = (dj1 + dj4 + dj7) / 2;
+        const int j258 = (dj2 + dj5 + dj8) / 2;
+        const int j369 = (dj3 + dj6 + dj9) / 2;
+        const int pm123 = (dj1 + dj2 - dj3) / 2;
+        const int pm132 = (dj1 + dj3 - dj2) / 2;
+        const int pm231 = (dj2 + dj3 - dj1) / 2;
+        const int pm456 = (dj4 + dj5 - dj6) / 2;
+        const int pm465 = (dj4 + dj6 - dj5) / 2;
+        const int pm564 = (dj5 + dj6 - dj4) / 2;
+        const int pm789 = (dj7 + dj8 - dj9) / 2;
+        const int pm798 = (dj7 + dj9 - dj8) / 2;
+        const int pm897 = (dj8 + dj9 - dj7) / 2;
+        const double P0_nu = unsafe_binomial(j123 + 1, dj1 + 1) * unsafe_binomial(dj1, pm123) * //
+                             unsafe_binomial(j456 + 1, dj5 + 1) * unsafe_binomial(dj5, pm456) * //
+                             unsafe_binomial(j789 + 1, dj9 + 1) * unsafe_binomial(dj9, pm798);
+        const double P0_de = unsafe_binomial(j147 + 1, dj1 + 1) * unsafe_binomial(dj1, (dj1 + dj4 - dj7) / 2) *
+                             unsafe_binomial(j258 + 1, dj5 + 1) * unsafe_binomial(dj5, (dj2 + dj5 - dj8) / 2) *
+                             unsafe_binomial(j369 + 1, dj9 + 1) * unsafe_binomial(dj9, (dj3 + dj9 - dj6) / 2);
+        const double P0 = std::sqrt(P0_nu / P0_de);
+        const int dtl = std::max(std::abs(dj2 - dj6), std::max(std::abs(dj4 - dj8), std::abs(dj1 - dj9)));
+        const int dth = std::min(dj2 + dj6, std::min(dj4 + dj8, dj1 + dj9));
         double PABC = 0;
         for (auto dt = dtl; dt <= dth; dt += 2)
         {
-            int j19t = (dj1 + dj9 + dt) / 2;
-            int j26t = (dj2 + dj6 + dt) / 2;
-            int j48t = (dj4 + dj8 + dt) / 2;
+            const int j19t = (dj1 + dj9 + dt) / 2;
+            const int j26t = (dj2 + dj6 + dt) / 2;
+            const int j48t = (dj4 + dj8 + dt) / 2;
             double Pt_de = unsafe_binomial(j19t + 1, dt + 1) * unsafe_binomial(dt, (dj1 + dt - dj9) / 2) *
                            unsafe_binomial(j26t + 1, dt + 1) * unsafe_binomial(dt, (dj2 + dt - dj6) / 2) *
                            unsafe_binomial(j48t + 1, dt + 1) * unsafe_binomial(dt, (dj4 + dt - dj8) / 2);
             Pt_de *= (dt + 1) * (dt + 1);
-            int xl = std::max(j123, std::max(j369, std::max(j26t, j19t)));
-            int xh = std::min(pm123 + j369, std::min(pm132 + j26t, pm231 + j19t));
+            const int xl = std::max(j123, std::max(j369, std::max(j26t, j19t)));
+            const int xh = std::min(pm123 + j369, std::min(pm132 + j26t, pm231 + j19t));
             double At = 0;
             for (auto x = xl; x <= xh; ++x)
             {
                 At = -At + unsafe_binomial(x + 1, j123 + 1) * unsafe_binomial(pm123, x - j369) *
                                unsafe_binomial(pm132, x - j26t) * unsafe_binomial(pm231, x - j19t);
             }
-            int yl = std::max(j456, std::max(j26t, std::max(j258, j48t)));
-            int yh = std::min(pm456 + j26t, std::min(pm465 + j258, pm564 + j48t));
+            const int yl = std::max(j456, std::max(j26t, std::max(j258, j48t)));
+            const int yh = std::min(pm456 + j26t, std::min(pm465 + j258, pm564 + j48t));
             double Bt = 0;
             for (auto y = yl; y <= yh; ++y)
             {
                 Bt = -Bt + unsafe_binomial(y + 1, j456 + 1) * unsafe_binomial(pm456, y - j26t) *
                                unsafe_binomial(pm465, y - j258) * unsafe_binomial(pm564, y - j48t);
             }
-            int zl = std::max(j789, std::max(j19t, std::max(j48t, j147)));
-            int zh = std::min(pm789 + j19t, std::min(pm798 + j48t, pm897 + j147));
+            const int zl = std::max(j789, std::max(j19t, std::max(j48t, j147)));
+            const int zh = std::min(pm789 + j19t, std::min(pm798 + j48t, pm897 + j147));
             double Ct = 0;
             for (auto z = zl; z <= zh; ++z)
             {
@@ -266,6 +266,12 @@ class WignerSymbols
             PABC += iphase(xh + yh + zh) * At * Bt * Ct / Pt_de;
         }
         return iphase(dth) * P0 * PABC;
+    }
+
+    double norm9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9)
+    {
+        return f9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9) *
+               std::sqrt((dj3 + 1.) * (dj6 + 1.) * (dj7 + 1.) * (dj8 + 1.));
     }
 
     // Buck et al. Nuc. Phys. A 600 (1996) 387-402
@@ -362,14 +368,14 @@ class WignerSymbols
     {
         if (!(check_jm(dj, dm1) && check_jm(dj, dm2)))
             return 0.;
-        int jm1 = (dj - dm1) / 2;
-        int jp1 = (dj + dm1) / 2;
-        int jm2 = (dj - dm2) / 2;
-        int mm = (dm1 + dm2) / 2;
-        double c = std::cos(beta / 2);
-        double s = std::sin(beta / 2);
-        int kmin = std::max(0, -mm);
-        int kmax = std::min(jm1, jm2);
+        const int jm1 = (dj - dm1) / 2;
+        const int jp1 = (dj + dm1) / 2;
+        const int jm2 = (dj - dm2) / 2;
+        const int mm = (dm1 + dm2) / 2;
+        const double c = std::cos(beta / 2);
+        const double s = std::sin(beta / 2);
+        const int kmin = std::max(0, -mm);
+        const int kmax = std::min(jm1, jm2);
         double sum = 0.;
         for (int k = kmin; k <= kmax; ++k)
         {
@@ -459,6 +465,69 @@ class WignerSymbols
         _nmax = nmax;
     }
 };
+
+inline WignerSymbols wigner;
+
+inline void wigner_init(int num, std::string type, int rank) { wigner.reserve(num, type, rank); }
+
+inline double fast_binomial(int n, int k) { return wigner.binomial(n, k); }
+
+// CG coefficient for two spin-1/2
+inline double CGspin(int ds1, int ds2, int S)
+{
+    static constexpr double inv_sqrt_2 = 0.70710678118654752;
+    if (unsigned(S) > 1)
+        return 0;
+    if (std::abs(ds1) != 1 || std::abs(ds1) != 1)
+        return 0;
+    if (S == 0)
+    {
+        return ds1 == ds2 ? 0.0 : std::copysign(inv_sqrt_2, ds1);
+    }
+    else // S == 1
+    {
+        return ds1 == ds2 ? 1.0 : inv_sqrt_2;
+    }
+}
+
+inline double CG(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3)
+{
+    return wigner.CG(dj1, dj2, dj3, dm1, dm2, dm3);
+}
+
+inline double CG0(int j1, int j2, int j3) { return wigner.CG0(j1, j2, j3); }
+
+inline double wigner_3j(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3)
+{
+    return wigner.f3j(dj1, dj2, dj3, dm1, dm2, dm3);
+}
+
+inline double wigner_6j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6)
+{
+    return wigner.f6j(dj1, dj2, dj3, dj4, dj5, dj6);
+}
+
+inline double Racah(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6)
+{
+    return wigner.Racah(dj1, dj2, dj3, dj4, dj5, dj6);
+}
+
+inline double wigner_9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9)
+{
+    return wigner.f9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
+}
+
+inline double wigner_norm9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9)
+{
+    return wigner.norm9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
+}
+
+inline double dfunc(int dj, int dm1, int dm2, double beta) { return wigner.dfunc(dj, dm1, dm2, beta); }
+
+inline double Moshinsky(int N, int L, int n, int l, int n1, int l1, int n2, int l2, int lambda, double tan_beta = 1.0)
+{
+    return wigner.Moshinsky(N, L, n, l, n1, l1, n2, l2, lambda, tan_beta);
+}
 
 } // end namespace util
 
