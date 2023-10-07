@@ -382,6 +382,63 @@ void time_9j_always_valid()
               << " ms" << std::endl;
 }
 
+void time_lsjj()
+{
+    using timer_clock = std::chrono::high_resolution_clock;
+    const int Lmax = 40;
+    wigner_init(2 * Lmax, "Jmax", 9);
+    double lsjj_sum = 0;
+    double norm9j_sum = 0;
+    auto t1 = timer_clock::now();
+    for (int l1 = 0; l1 <= Lmax; ++l1)
+    {
+        for (int l2 = 0; l2 <= Lmax; ++l2)
+        {
+            std::vector<std::pair<int, int>> dj_pairs = {
+                {2 * l1 - 1, 2 * l2 - 1}, {2 * l1 - 1, 2 * l2 + 1}, {2 * l1 + 1, 2 * l2 - 1}, {2 * l1 + 1, 2 * l2 + 1}};
+            for (auto [dj1, dj2] : dj_pairs)
+            {
+                for (int L = std::abs(l1 - l2); L <= l1 + l2; ++L)
+                {
+                    std::vector<std::pair<int, int>> SJ_pairs = {{0, L}, {1, L - 1}, {1, L}, {1, L + 1}};
+                    for (auto [S, J] : SJ_pairs)
+                    {
+                        double x = lsjj(l1, l2, dj1, dj2, L, S, J);
+                        lsjj_sum += std::abs(x);
+                    }
+                }
+            }
+        }
+    }
+    auto t2 = timer_clock::now();
+    for (int l1 = 0; l1 <= Lmax; ++l1)
+    {
+        for (int l2 = 0; l2 <= Lmax; ++l2)
+        {
+            std::vector<std::pair<int, int>> dj_pairs = {
+                {2 * l1 - 1, 2 * l2 - 1}, {2 * l1 - 1, 2 * l2 + 1}, {2 * l1 + 1, 2 * l2 - 1}, {2 * l1 + 1, 2 * l2 + 1}};
+            for (auto [dj1, dj2] : dj_pairs)
+            {
+                for (int L = std::abs(l1 - l2); L <= l1 + l2; ++L)
+                {
+                    std::vector<std::pair<int, int>> SJ_pairs = {{0, L}, {1, L - 1}, {1, L}, {1, L + 1}};
+                    for (auto [S, J] : SJ_pairs)
+                    {
+                        double y = wigner_norm9j(2 * l1, 1, dj1, 2 * l2, 1, dj2, 2 * L, 2 * S, 2 * J);
+                        norm9j_sum += std::abs(y);
+                    }
+                }
+            }
+        }
+    }
+    auto t3 = timer_clock::now();
+    std::cout << "time lsjj, diff = " << std::abs(lsjj_sum - norm9j_sum) << std::endl;
+    std::cout << "lsjj time = " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << " ms"
+              << std::endl;
+    std::cout << "norm9j time = " << std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2).count() << " ms"
+              << std::endl;
+}
+
 int main()
 {
     std::cout << "----- test where most results are zeros -----" << std::endl;
@@ -392,5 +449,7 @@ int main()
     time_3j_always_valid();
     time_6j_always_valid();
     time_9j_always_valid();
+    std::cout << "----- test lsjj -----" << std::endl;
+    time_lsjj();
     return 0;
 }

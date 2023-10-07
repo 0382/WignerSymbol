@@ -186,6 +186,43 @@ void test_Moshinsky()
     std::cout << "test Moshinsky, diff = " << diff << std::endl;
 }
 
+void test_lsjj()
+{
+    const int Lmax = 20;
+    wigner_init(2 * Lmax, "Jmax", 9);
+    double lsjj_sum = 0;
+    double norm9j_sum = 0;
+    for (int l1 = 0; l1 <= Lmax; ++l1)
+    {
+        for (int l2 = 0; l2 <= Lmax; ++l2)
+        {
+            std::vector<std::pair<int, int>> dj_pairs = {
+                {2 * l1 - 1, 2 * l2 - 1}, {2 * l1 - 1, 2 * l2 + 1}, {2 * l1 + 1, 2 * l2 - 1}, {2 * l1 + 1, 2 * l2 + 1}};
+            for (auto [dj1, dj2] : dj_pairs)
+            {
+                for (int L = std::abs(l1 - l2); L <= l1 + l2; ++L)
+                {
+                    std::vector<std::pair<int, int>> SJ_pairs = {{0, L}, {1, L - 1}, {1, L}, {1, L + 1}};
+                    for (auto [S, J] : SJ_pairs)
+                    {
+                        double x = lsjj(l1, l2, dj1, dj2, L, S, J);
+                        double y = wigner_norm9j(2 * l1, 1, dj1, 2 * l2, 1, dj2, 2 * L, 2 * S, 2 * J);
+                        if (std::abs(x - y) > 1e-10)
+                        {
+                            std::cout << "l1 = " << l1 << ", l2 = " << l2 << ", dj1 = " << dj1 << ", dj2 = " << dj2
+                                      << ", L = " << L << ", S = " << S << ", J = " << J << std::endl;
+                            std::cout << "lsjj = " << x << ", norm9j = " << y << std::endl;
+                        }
+                        lsjj_sum += std::abs(x);
+                        norm9j_sum += std::abs(y);
+                    }
+                }
+            }
+        }
+    }
+    std::cout << "test lsjj, diff = " << std::abs(lsjj_sum - norm9j_sum) << std::endl;
+}
+
 int main(int argc, char const *argv[])
 {
     test_3j();
@@ -193,5 +230,6 @@ int main(int argc, char const *argv[])
     test_6j();
     test_9j();
     test_Moshinsky();
+    test_lsjj();
     return 0;
 }

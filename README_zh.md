@@ -39,6 +39,8 @@ double WignerSymbols::Racah(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6
 double WignerSymbols::f9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
 // normalized 9j系数
 double WignerSymbols::f9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
+// LS耦合到jj耦合转换系数，本质上是一个normalized 9j系数，但更快
+double WignerSymbols::lsjj(int l1, int l2, int dj1, int dj2, int L, int S, int J);
 // Wigner d函数 <j,m1|exp(i*beta*jy)|j,m2>
 double WignerSymbols::dfunc(int dj, int dm1, int dm2, double beta);
 // Moshinsky 括号，参考: Buck et al. Nuc. Phys. A 600 (1996) 387-402
@@ -159,6 +161,8 @@ double Racah(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6);
 double wigner_9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
 // normalized 9j系数
 double wigner_norm9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
+// LS耦合到jj耦合的转换系数
+double lsjj(int l1, int l2, int dj1, int dj2, int L, int S, int J);
 // Wigner d函数 <j,m1|exp(i*beta*jy)|j,m2>
 double dfunc(int dj, int dm1, int dm2, double beta);
 // Moshinsky 括号，参考: Buck et al. Nuc. Phys. A 600 (1996) 387-402

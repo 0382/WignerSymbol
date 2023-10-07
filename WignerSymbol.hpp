@@ -274,6 +274,99 @@ class WignerSymbols
                std::sqrt((dj3 + 1.) * (dj6 + 1.) * (dj7 + 1.) * (dj8 + 1.));
     }
 
+    static double lsjj_helper(int l1, int l2, int dj1, int dj2, int J)
+    {
+        // assume (l1, j1), (l2, j2) is checked in the lsjj function
+        const int64_t pj = (dj1 + dj2) / 2;
+        const int64_t mj = (dj1 - dj2) / 2;
+        if (dj1 > 2 * l1 && dj2 > 2 * l2) // j1 = l1 + 1/2, j2 = l1 + 1/2
+        {
+            return std::sqrt(double((pj + J + 1) * (pj - J)) / double(2 * dj1 * dj2));
+        }
+        else if (dj1 > 2 * l1 && dj2 < 2 * l2) // j1 = l1 + 1/2, j2 = l1 - 1/2
+        {
+            return std::sqrt(double((J - mj + 1) * (J + mj)) / double(2 * dj1 * (dj2 + 2)));
+        }
+        else if (dj1 < 2 * l1 && dj2 > 2 * l2) // j1 = l1 - 1/2, j2 = l1 + 1/2
+        {
+            return -std::sqrt(double((J + mj + 1) * (J - mj)) / double(2 * dj2 * (dj1 + 2)));
+        }
+        else // j1 = l1 - 1/2, j2 = l1 - 1/2
+        {
+            return std::sqrt(double((pj + J + 2) * (pj - J + 1)) / double(2 * (dj1 + 2) * (dj2 + 2)));
+        }
+    }
+
+    // S = 0
+    static double lsjj_S0(int l1, int l2, int dj1, int dj2, int J) { return lsjj_helper(l1, l2, dj1, dj2, J); }
+
+    // S = 1, J = L
+    static double lsjj_S1_0(int l1, int l2, int dj1, int dj2, int J)
+    {
+        const int64_t pj = (dj1 + dj2) / 2;
+        const int64_t mj = (dj1 - dj2) / 2;
+        const int64_t pl = l1 + l2;
+        const int64_t ml = l1 - l2;
+        return (mj * (pj + 1) - ml * (pl + 1)) * lsjj_helper(l1, l2, dj1, dj2, J) / std::sqrt(J * (J + 1));
+    }
+
+    // S = 1, J = L + 1
+    static double lsjj_S1_p1(int l1, int l2, int dj1, int dj2, int J)
+    {
+        const int64_t pj = (dj1 + dj2) / 2;
+        const int64_t mj = (dj1 - dj2) / 2;
+        const int64_t pl = l1 + l2;
+        const int64_t ml = l1 - l2;
+        const double f0 = J * (2 * J + 1);
+        const double fL = (J + mj) * (J - mj) * (J + pj + 1) * (pj - J + 1);
+        const double fJ = (J + ml) * (J - ml) * (J + pl + 1) * (pl - J + 1);
+        return std::sqrt(fL / f0) * lsjj_helper(l1, l2, dj1, dj2, J - 1) -
+               std::sqrt(fJ / f0) * lsjj_helper(l1, l2, dj1, dj2, J);
+    }
+
+    // S = 1, J = L - 1
+    static double lsjj_S1_m1(int l1, int l2, int dj1, int dj2, int J)
+    {
+        const int L = J + 1;
+        const int64_t pj = (dj1 + dj2) / 2;
+        const int64_t mj = (dj1 - dj2) / 2;
+        const int64_t pl = l1 + l2;
+        const int64_t ml = l1 - l2;
+        const double f0 = L * (2 * L - 1);
+        const double fJ = (L + ml) * (L - ml) * (L + pl + 1) * (pl - L + 1);
+        const double fL = (L + mj) * (L - mj) * (L + pj + 1) * (pj - L + 1);
+        return std::sqrt(fJ / f0) * lsjj_helper(l1, l2, dj1, dj2, J) -
+               std::sqrt(fL / f0) * lsjj_helper(l1, l2, dj1, dj2, L);
+    }
+
+    static double lsjj(int l1, int l2, int dj1, int dj2, int L, int S, int J)
+    {
+        if (dj1 < 1 || dj2 < 1)
+            return 0;
+        if (std::abs(2 * l1 - dj1) != 1 || std::abs(2 * l2 - dj2) != 1)
+            return 0;
+        if (!check_couple(2 * l1, 2 * l2, 2 * L))
+            return 0;
+        if (!check_couple(dj1, dj2, 2 * J))
+            return 0;
+        if (!check_couple(2 * L, 2 * S, 2 * J))
+            return 0;
+        if (S == 0)
+        {
+            return lsjj_S0(l1, l2, dj1, dj2, J);
+        }
+        else if (S == 1)
+        {
+            if (L == J)
+                return lsjj_S1_0(l1, l2, dj1, dj2, J);
+            else if (J == L + 1)
+                return lsjj_S1_p1(l1, l2, dj1, dj2, J);
+            else if (J == L - 1)
+                return lsjj_S1_m1(l1, l2, dj1, dj2, J);
+        }
+        return 0;
+    }
+
     // Buck et al. Nuc. Phys. A 600 (1996) 387-402
     double Moshinsky(int N, int L, int n, int l, int n1, int l1, int n2, int l2, int lambda,
                      double tan_beta = 1.0) const
@@ -520,6 +613,11 @@ inline double wigner_9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, in
 inline double wigner_norm9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9)
 {
     return wigner.norm9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
+}
+
+inline double lsjj(int l1, int l2, int dj1, int dj2, int L, int S, int J)
+{
+    return wigner.lsjj(l1, l2, dj1, dj2, L, S, J);
 }
 
 inline double dfunc(int dj, int dm1, int dm2, double beta) { return wigner.dfunc(dj, dm1, dm2, beta); }

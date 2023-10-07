@@ -39,6 +39,8 @@ double WignerSymbols::Racah(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6
 double WignerSymbols::f9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
 // normalized Wigner 9j symbol
 double WignerSymbols::norm9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
+// LS-coupling to jj-coupling transformation coefficient
+double WignerSymbols::lsjj(int l1, int l2, int dj1, int dj2, int L, int S, int J);
 // Wigner d-function <j,m1|exp(i*beta*jy)|j,m2>
 double WignerSymbols::dfunc(int dj, int dm1, int dm2, double beta);
 // Moshinsky bracket，Ref: Buck et al. Nuc. Phys. A 600 (1996) 387-402
@@ -156,6 +158,8 @@ double Racah(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6);
 double wigner_9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
 // normalized Wigner 9j symbol
 double wigner_norm9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
+// LS-coupling to jj-coupling transformation coefficient
+double lsjj(int l1, int l2, int dj1, int dj2, int L, int S, int J);
 // Wigner d-function <j,m1|exp(i*beta*jy)|j,m2>
 double dfunc(int dj, int dm1, int dm2, double beta);
 // Moshinsky bracket，Ref: Buck et al. Nuc. Phys. A 600 (1996) 387-402
