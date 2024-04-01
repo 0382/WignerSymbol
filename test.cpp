@@ -190,19 +190,19 @@ void test_Moshinsky()
 void test_CGspin()
 {
     std::mt19937 gen(0);
-    std::uniform_int_distribution<int> dist(-1, 1);
-    constexpr int N = 10'000;
+    std::uniform_int_distribution<int> dist(-1, 1); // has invalid input
+    constexpr int N = 100'000;
     bool has_error = false;
     for (int i = 0; i < N; ++i)
     {
-        int ds1 = dist(gen);
-        int ds2 = dist(gen);
+        int dm1 = dist(gen);
+        int dm2 = dist(gen);
         int S = dist(gen);
-        double x = CGspin(ds1, ds2, S);
-        double y = CG(1, 1, 2 * S, ds1, ds2, ds1 + ds2);
+        double x = CGspin(dm1, dm2, S);
+        double y = CG(1, 1, 2 * S, dm1, dm2, dm1 + dm2);
         if (std::abs(x - y) > 1e-12)
         {
-            std::cerr << "ds1 = " << ds1 << ", ds2 = " << ds2 << ", S = " << S << std::endl;
+            std::cerr << "dm1 = " << dm1 << ", dm2 = " << dm2 << ", S = " << S << std::endl;
             std::cerr << "CGspin = " << x << ", CG = " << y << std::endl;
             has_error = true;
             std::exit(1);
@@ -211,6 +211,28 @@ void test_CGspin()
     if (!has_error)
     {
         std::cout << "test CGspin passed" << std::endl;
+    }
+    for (int i = 0; i < N; ++i)
+    {
+        int dm1 = dist(gen);
+        int dm2 = dist(gen);
+        int dm3 = dist(gen);
+        int S12 = dist(gen);
+        int dS = dist(gen) + 2;
+        double x = CG3spin(dm1, dm2, dm3, S12, dS);
+        double y = CG(1, 1, 2 * S12, dm1, dm2, dm1 + dm2) * CG(2 * S12, 1, dS, dm1 + dm2, dm3, dm1 + dm2 + dm3);
+        if (std::abs(x - y) > 1e-12)
+        {
+            std::cerr << "dm1 = " << dm1 << ", dm2 = " << dm2 << ", dm3 = " << dm3 << ", S12 = " << S12
+                      << ", dS = " << dS << std::endl;
+            std::cerr << "CG3spin = " << x << ", CG = " << y << std::endl;
+            has_error = true;
+            std::exit(1);
+        }
+    }
+    if (!has_error)
+    {
+        std::cout << "test CG3spin passed" << std::endl;
     }
 }
 

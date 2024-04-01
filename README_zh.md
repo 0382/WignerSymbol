@@ -34,6 +34,8 @@ double fast_binomial(int n, int k);
 double CG(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3);
 // 两个 1/2 自旋的CG系数
 double CGspin(int ds1, int ds2, int S);
+// 三个 1/2 自旋两次耦合 <S12,M12|1/2,m1;1/2,m2><S,M|S12,M12;1/2,m3>
+double CG3spin(int dm1, int dm2, int dm3, int S12, int dS)
 // CG 系数特殊情况 m1 == m2 == m3 == 0
 double CG0(int j1, int j2, int j3);
 // 3j系数
@@ -98,7 +100,7 @@ wigner_init(21, "2bjmax", 6);
 wigner_init(21, "Jmax", 9);
 ```
 
-表示我们体系中最大可能的角动量为`Jmax = 21`，只计算到9j系数。
+表示我们体系中最大可能的角动量为`Jmax = 21`，计算到9j系数。
 
 `"Jmax"`模式没有任何假定，它总是安全的。即使考虑到三体耦合，只要使用三体的总`Jmax`来`wigner_init`，就能够保证不会溢出，尽管这可能会浪费一些空间。
 

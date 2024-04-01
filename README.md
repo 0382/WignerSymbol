@@ -34,7 +34,9 @@ double fast_binomial(int n, int k);
 // CG coefficient
 double CG(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3);
 // CG coefficient for two spin-1/2, equivalent to `CG(1, 1, 2*S, ds1, ds2, ds1+ds2)`, and faster
-double CGspin(int ds1, int ds2, int S);
+double CGspin(int dm1, int dm2, int S);
+// <S12,M12|1/2,m1;1/2,m2><S,M|S12,M12;1/2,m3>
+double CG3spin(int dm1, int dm2, int dm3, int S12, int dS)
 // CG coefficient with m1 == m2 == m3 == 0
 double CG0(int j1, int j2, int j3);
 // Wigner 3j symbol
