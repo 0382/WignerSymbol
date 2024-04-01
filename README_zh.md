@@ -1,5 +1,7 @@
 # WignerSymbol
 
+[![test](https://github.com/0382/WignerSymbol/actions/workflows/test.yml/badge.svg)](https://github.com/0382/WignerSymbol/actions/workflows/test.yml)
+
 [English](README.md)
 
 计算CG系数，Racah系数，Wigner 3j, 6j, 9j 系数。公式参考自[CGcoefficient.jl](https://github.com/0382/CGcoefficient.jl)。

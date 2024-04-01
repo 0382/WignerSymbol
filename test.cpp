@@ -1,6 +1,7 @@
 #include "WignerSymbol.hpp"
 #include <functional>
 #include <gsl/gsl_specfunc.h>
+#include <random>
 
 constexpr double sqrt_2 = 1.41421356237309504880;
 
@@ -186,6 +187,33 @@ void test_Moshinsky()
     std::cout << "test Moshinsky, diff = " << diff << std::endl;
 }
 
+void test_CGspin()
+{
+    std::mt19937 gen(0);
+    std::uniform_int_distribution<int> dist(-1, 1);
+    constexpr int N = 10'000;
+    bool has_error = false;
+    for (int i = 0; i < N; ++i)
+    {
+        int ds1 = dist(gen);
+        int ds2 = dist(gen);
+        int S = dist(gen);
+        double x = CGspin(ds1, ds2, S);
+        double y = CG(1, 1, 2 * S, ds1, ds2, ds1 + ds2);
+        if (std::abs(x - y) > 1e-12)
+        {
+            std::cerr << "ds1 = " << ds1 << ", ds2 = " << ds2 << ", S = " << S << std::endl;
+            std::cerr << "CGspin = " << x << ", CG = " << y << std::endl;
+            has_error = true;
+            std::exit(1);
+        }
+    }
+    if (!has_error)
+    {
+        std::cout << "test CGspin passed" << std::endl;
+    }
+}
+
 void test_lsjj()
 {
     const int Lmax = 20;
@@ -230,6 +258,7 @@ int main(int argc, char const *argv[])
     test_6j();
     test_9j();
     test_Moshinsky();
+    test_CGspin();
     test_lsjj();
     return 0;
 }

@@ -1,5 +1,7 @@
 # WignerSymbol
 
+[![test](https://github.com/0382/WignerSymbol/actions/workflows/test.yml/badge.svg)](https://github.com/0382/WignerSymbol/actions/workflows/test.yml)
+
 [中文](README_zh.md)
 
 Calculate CG coefficient, Racah coefficient, and Wigner 3j, 6j, 9j coefficient. Calculation formula please see [CGcoefficient.jl](https://github.com/0382/CGcoefficient.jl).

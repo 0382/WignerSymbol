@@ -569,18 +569,12 @@ inline double fast_binomial(int n, int k) { return wigner.binomial(n, k); }
 inline double CGspin(int ds1, int ds2, int S)
 {
     static constexpr double inv_sqrt_2 = 0.70710678118654752;
+    static constexpr double values[2][2][2] = {0.0, 1.0, -inv_sqrt_2, inv_sqrt_2, inv_sqrt_2, inv_sqrt_2, 0.0, 1.0};
     if (unsigned(S) > 1)
         return 0;
-    if (std::abs(ds1) != 1 || std::abs(ds1) != 1)
+    if (std::abs(ds1) != 1 || std::abs(ds2) != 1)
         return 0;
-    if (S == 0)
-    {
-        return ds1 == ds2 ? 0.0 : std::copysign(inv_sqrt_2, ds1);
-    }
-    else // S == 1
-    {
-        return ds1 == ds2 ? 1.0 : inv_sqrt_2;
-    }
+    return values[ds1 > 0][ds2 > 0][S > 0];
 }
 
 inline double CG(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3)
