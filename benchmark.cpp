@@ -8,9 +8,8 @@ void time_3j()
 {
     using timer_clock = std::chrono::high_resolution_clock;
     auto t1 = timer_clock::now();
-    WignerSymbols wigner;
-    int N = 40;
-    wigner.reserve(N, "2bjmax", 3);
+    const int N = 40;
+    wigner_init(N, "2bjmax", 3);
     double x = 0;
     for (int dj1 = 0; dj1 <= N; ++dj1)
     {
@@ -24,7 +23,7 @@ void time_3j()
                     {
                         for (int dm3 = -dj3; dm3 <= dj3; dm3 += 2)
                         {
-                            x += wigner.f3j(dj1, dj2, dj3, dm1, dm2, dm3);
+                            x += wigner_3j(dj1, dj2, dj3, dm1, dm2, dm3);
                         }
                     }
                 }
@@ -66,9 +65,8 @@ void time_3j_always_valid()
 {
     using timer_clock = std::chrono::high_resolution_clock;
     auto t1 = timer_clock::now();
-    WignerSymbols wigner;
-    int N = 50;
-    wigner.reserve(N, "2bjmax", 3);
+    const int N = 50;
+    wigner_init(N, "2bjmax", 3);
     double x = 0;
     for (int dj1 = 0; dj1 <= N; ++dj1)
     {
@@ -80,7 +78,7 @@ void time_3j_always_valid()
                 {
                     for (int dm2 = -dj2; dm2 <= dj2; dm2 += 2)
                     {
-                        x += wigner.f3j(dj1, dj2, dj3, dm1, dm2, -dm1 - dm2);
+                        x += wigner_3j(dj1, dj2, dj3, dm1, dm2, -dm1 - dm2);
                     }
                 }
             }
@@ -116,9 +114,8 @@ void time_6j()
 {
     using timer_clock = std::chrono::high_resolution_clock;
     auto t1 = timer_clock::now();
-    WignerSymbols wigner;
-    int N = 30;
-    wigner.reserve(N, "Jmax", 6);
+    const int N = 30;
+    wigner_init(N, "Jmax", 6);
     double x = 0;
     for (int dj1 = N; dj1 <= 2 * N; ++dj1)
     {
@@ -132,7 +129,7 @@ void time_6j()
                     {
                         for (int dj6 = N; dj6 <= 2 * N; ++dj6)
                         {
-                            x += wigner.f6j(dj1, dj2, dj3, dj4, dj5, dj6);
+                            x += wigner_6j(dj1, dj2, dj3, dj4, dj5, dj6);
                         }
                     }
                 }
@@ -172,9 +169,8 @@ void time_6j_always_valid()
 {
     using timer_clock = std::chrono::high_resolution_clock;
     auto t1 = timer_clock::now();
-    WignerSymbols wigner;
-    int N = 50;
-    wigner.reserve(N, "2bjmax", 6);
+    const int N = 50;
+    wigner_init(N, "2bjmax", 6);
     double x = 0;
     for (int dj1 = 0; dj1 <= N; ++dj1)
     {
@@ -192,7 +188,7 @@ void time_6j_always_valid()
                     {
                         for (int dj6 = dj6_min; dj6 <= dj6_max; dj6 += 2)
                         {
-                            x += wigner.f6j(dj1, dj2, dj3, dj4, dj5, dj6);
+                            x += wigner_6j(dj1, dj2, dj3, dj4, dj5, dj6);
                         }
                     }
                 }
@@ -236,9 +232,8 @@ void time_9j()
 {
     using timer_clock = std::chrono::high_resolution_clock;
     auto t1 = timer_clock::now();
-    WignerSymbols wigner;
-    int N = 8;
-    wigner.reserve(N, "Jmax", 9);
+    const int N = 8;
+    wigner_init(N, "Jmax", 9);
     double x = 0;
     for (int dj1 = N; dj1 <= 2 * N; ++dj1)
     {
@@ -258,7 +253,7 @@ void time_9j()
                                 {
                                     for (int dj9 = N; dj9 <= 2 * N; ++dj9)
                                     {
-                                        x += wigner.f9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
+                                        x += wigner_9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
                                     }
                                 }
                             }
@@ -310,9 +305,8 @@ void time_9j_always_valid()
 {
     using timer_clock = std::chrono::high_resolution_clock;
     auto t1 = timer_clock::now();
-    WignerSymbols wigner;
-    int N = 10;
-    wigner.reserve(N, "Jmax", 9);
+    const int N = 10;
+    wigner_init(N, "Jmax", 9);
     double x = 0;
     for (int dj1 = 0; dj1 <= N; ++dj1)
     {
@@ -333,7 +327,7 @@ void time_9j_always_valid()
                                     int dj9_min = std::max(std::abs(dj3 - dj6), std::abs(dj7 - dj8));
                                     for (int dj9 = dj9_min; dj9 <= 2 * N; dj9 += 2)
                                     {
-                                        x += wigner.f9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
+                                        x += wigner_9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
                                     }
                                 }
                             }

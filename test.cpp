@@ -9,9 +9,8 @@ using namespace util;
 
 void test_3j()
 {
-    WignerSymbols wigner;
-    int N = 10;
-    wigner.reserve(N, "Jmax", 3);
+    const int N = 10;
+    wigner_init(N, "Jmax", 3);
     double diff = 0;
     for (int dj1 = N; dj1 <= 2 * N; ++dj1)
     {
@@ -25,7 +24,7 @@ void test_3j()
                     {
                         for (int dm3 = -dj3; dm3 <= dj3; ++dm3)
                         {
-                            double x = wigner.f3j(dj1, dj2, dj3, dm1, dm2, dm3);
+                            double x = wigner_3j(dj1, dj2, dj3, dm1, dm2, dm3);
                             double y = gsl_sf_coupling_3j(dj1, dj2, dj3, dm1, dm2, dm3);
                             diff += std::abs(x - y);
                         }
@@ -39,9 +38,8 @@ void test_3j()
 
 void test_CG0()
 {
-    WignerSymbols wigner;
-    int N = 20;
-    wigner.reserve(2 * N, "Jmax", 3);
+    const int N = 20;
+    wigner_init(2 * N, "Jmax", 3);
     double diff = 0;
     for (int j1 = 0; j1 <= N; ++j1)
     {
@@ -49,8 +47,8 @@ void test_CG0()
         {
             for (int j3 = std::abs(j1 - j2); j3 <= j1 + j2; ++j3)
             {
-                double x = wigner.CG(2 * j1, 2 * j2, 2 * j3, 0, 0, 0);
-                double y = wigner.CG0(j1, j2, j3);
+                double x = CG(2 * j1, 2 * j2, 2 * j3, 0, 0, 0);
+                double y = CG0(j1, j2, j3);
                 diff += std::abs(x - y);
             }
         }
@@ -60,9 +58,8 @@ void test_CG0()
 
 void test_6j()
 {
-    WignerSymbols wigner;
-    int N = 20;
-    wigner.reserve(N, "Jmax", 6);
+    const int N = 20;
+    wigner_init(N, "Jmax", 6);
     double diff = 0;
     for (int dj1 = N; dj1 <= 2 * N; ++dj1)
     {
@@ -76,7 +73,7 @@ void test_6j()
                     {
                         for (int dj6 = N; dj6 <= 2 * N; ++dj6)
                         {
-                            double x = wigner.f6j(dj1, dj2, dj3, dj4, dj5, dj6);
+                            double x = wigner_6j(dj1, dj2, dj3, dj4, dj5, dj6);
                             double y = gsl_sf_coupling_6j(dj1, dj2, dj3, dj4, dj5, dj6);
                             diff += std::abs(x - y);
                         }
@@ -90,9 +87,8 @@ void test_6j()
 
 void test_9j()
 {
-    WignerSymbols wigner;
-    int N = 6;
-    wigner.reserve(N, "Jmax", 9);
+    const int N = 6;
+    wigner_init(N, "Jmax", 9);
     double diff = 0;
     for (int dj1 = 0; dj1 <= N; ++dj1)
     {
@@ -112,7 +108,7 @@ void test_9j()
                                 {
                                     for (int dj9 = 0; dj9 <= N; ++dj9)
                                     {
-                                        double x = wigner.f9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
+                                        double x = wigner_9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
                                         double y = gsl_sf_coupling_9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
                                         diff += std::abs(x - y);
                                     }
@@ -170,7 +166,6 @@ const std::function<double(double)> Moshinsky_test_set_result[] = {
 
 void test_Moshinsky()
 {
-    WignerSymbols wigner;
     constexpr double tan_betas[] = {1. / 3., 0.5, 1., 2., 3.};
     double diff = 0.;
     for (double tan_beta : tan_betas)
@@ -179,7 +174,7 @@ void test_Moshinsky()
         {
             Moshinsky_case m = Moshinsky_test_set[idx];
             auto exact_func = Moshinsky_test_set_result[idx];
-            double x = wigner.Moshinsky(m.N, m.L, m.n, m.l, m.n1, m.l1, m.n2, m.l2, m.Lambda, tan_beta);
+            double x = Moshinsky(m.N, m.L, m.n, m.l, m.n1, m.l1, m.n2, m.l2, m.Lambda, tan_beta);
             double y = exact_func(tan_beta);
             diff += std::abs(x - y);
         }
