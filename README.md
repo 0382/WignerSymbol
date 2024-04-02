@@ -4,7 +4,7 @@
 
 [中文](README_zh.md)
 
-Calculate CG coefficient, Racah coefficient, and Wigner 3j, 6j, 9j coefficient. Calculation formula please see [CGcoefficient.jl](https://github.com/0382/CGcoefficient.jl).
+Calculate CG coefficient, Racah coefficient, Wigner 3j, 6j, 9j coefficient, Moshinsky bracket, etc. Some formula please see [CGcoefficient.jl](https://0382.github.io/CGcoefficient.jl/stable/formula/).
 
 ## Usage
 
@@ -36,7 +36,7 @@ double CG(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3);
 // CG coefficient for two spin-1/2, equivalent to `CG(1, 1, 2*S, ds1, ds2, ds1+ds2)`, and faster
 double CGspin(int dm1, int dm2, int S);
 // <S12,M12|1/2,m1;1/2,m2><S,M|S12,M12;1/2,m3>
-double CG3spin(int dm1, int dm2, int dm3, int S12, int dS)
+double CG3spin(int dm1, int dm2, int dm3, int S12, int dS);
 // CG coefficient with m1 == m2 == m3 == 0
 double CG0(int j1, int j2, int j3);
 // Wigner 3j symbol
@@ -127,3 +127,9 @@ The following table shows the exact `nmax` setted in different condition. See [E
 ### Thread safety
 
 The `wigner_init` function is **not** thread safe. So you shuld not call `winger_init` function dymanically in a multi-threading program. The correct way to use this package is find the maximum angular momentum quantum number in you system, and call `wigner_init` at the beginning of the code, and then don't call it any more.
+
+
+## Reference
+
+1. T. Engeland and M. Hjorth-Jensen, the Oslo-FCI code. https://github.com/ManyBodyPhysics/CENS.
+2. A. N. Moskalev D. A. Varshalovich and V. K. Khersonskii, *Quantum theory of angular momentum*.

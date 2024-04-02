@@ -4,7 +4,7 @@
 
 [English](README.md)
 
-计算CG系数，Racah系数，Wigner 3j, 6j, 9j 系数。公式参考自[CGcoefficient.jl](https://github.com/0382/CGcoefficient.jl)。
+计算CG系数，Racah系数，Wigner 3j, 6j, 9j 系数，Moshinsky括号等。其中一些公式请看[CGcoefficient.jl](https://0382.github.io/CGcoefficient.jl/stable/formula/)。
 
 ## 使用方法
 
@@ -35,7 +35,7 @@ double CG(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3);
 // 两个 1/2 自旋的CG系数
 double CGspin(int ds1, int ds2, int S);
 // 三个 1/2 自旋两次耦合 <S12,M12|1/2,m1;1/2,m2><S,M|S12,M12;1/2,m3>
-double CG3spin(int dm1, int dm2, int dm3, int S12, int dS)
+double CG3spin(int dm1, int dm2, int dm3, int S12, int dS);
 // CG 系数特殊情况 m1 == m2 == m3 == 0
 double CG0(int j1, int j2, int j3);
 // 3j系数
@@ -125,3 +125,8 @@ wigner_init(21, "Jmax", 9);
 ### 线程安全
 
 注意：`wigner_init`函数**不是**线程安全的，如果你的程序是并行的，不要动态地调用`wigner_init`函数。正确是使用本库的方法是，先计算出体系最大角动量，然后在程序开始时调用一次`wigner_init`函数，之后就不应该继续调用这个函数了。其他函数只是读取二项式系数表，并行地调用完全没有问题。
+
+## 参考资料
+
+1. T. Engeland and M. Hjorth-Jensen, the Oslo-FCI code. https://github.com/ManyBodyPhysics/CENS.
+2. A. N. Moskalev D. A. Varshalovich and V. K. Khersonskii, *Quantum theory of angular momentum*.
