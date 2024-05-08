@@ -22,7 +22,7 @@ double x = wigner_6j(dj1, dj2, dj3, dj4, dj5, dj6);
 ### Limitation 
 
 For quite large quantum number, the package will give wrong answer, since it use float number arithmetic.
-However, it is trustworthy for most real real world numerical calculation system. For `f9j`, it works at least about `Jmax = 25`.
+Please see [wigner-benchmark](https://github.com/0382/wigner-benchmark) for the error estimate and performance benchmark.
 
 ## API
 
