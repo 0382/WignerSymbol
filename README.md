@@ -4,7 +4,7 @@
 
 [中文](README_zh.md)
 
-Calculate CG coefficient, Racah coefficient, Wigner 3j, 6j, 9j coefficient, Moshinsky bracket, etc. Some formula please see [CGcoefficient.jl](https://0382.github.io/CGcoefficient.jl/stable/formula/).
+Calculate CG coefficient, Racah coefficient, Wigner 3j, 6j, 9j coefficient, Moshinsky bracket, etc. Some formula please see [CGcoefficient.jl](https://0382.github.io/CGcoefficient.jl/stable/wigner/).
 
 ## Usage
 
