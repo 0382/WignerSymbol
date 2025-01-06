@@ -379,7 +379,7 @@ void time_9j_always_valid()
 void time_lsjj()
 {
     using timer_clock = std::chrono::high_resolution_clock;
-    const int Lmax = 40;
+    const int Lmax = 50;
     wigner_init(2 * Lmax, "Jmax", 9);
     double lsjj_sum = 0;
     double norm9j_sum = 0;

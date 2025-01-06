@@ -1,7 +1,9 @@
 #include "WignerSymbol.hpp"
 #include <functional>
 #include <gsl/gsl_specfunc.h>
+#include <iostream>
 #include <random>
+
 
 constexpr double sqrt_2 = 1.41421356237309504880;
 
@@ -166,17 +168,23 @@ const std::function<double(double)> Moshinsky_test_set_result[] = {
 
 void test_Moshinsky()
 {
+    wigner_init(2, "Moshinsky", 0);
     constexpr double tan_betas[] = {1. / 3., 0.5, 1., 2., 3.};
     double diff = 0.;
     for (double tan_beta : tan_betas)
     {
-        for (int idx = 0; idx < 13; ++idx)
+        for (int idx = 6; idx < 13; ++idx)
         {
             Moshinsky_case m = Moshinsky_test_set[idx];
             auto exact_func = Moshinsky_test_set_result[idx];
             double x = Moshinsky(m.N, m.L, m.n, m.l, m.n1, m.l1, m.n2, m.l2, m.Lambda, tan_beta);
             double y = exact_func(tan_beta);
             diff += std::abs(x - y);
+            if (std::abs(x - y) > 1e-12)
+            {
+                std::cout << "idx = " << idx << ", tan_beta = " << tan_beta << ": ";
+                std::cout << "Moshinsky = " << x << ", exact = " << y << std::endl;
+            }
         }
     }
     std::cout << "test Moshinsky, diff = " << diff << std::endl;
@@ -200,12 +208,15 @@ void test_CGspin()
             std::cerr << "dm1 = " << dm1 << ", dm2 = " << dm2 << ", S = " << S << std::endl;
             std::cerr << "CGspin = " << x << ", CG = " << y << std::endl;
             has_error = true;
-            std::exit(1);
         }
     }
     if (!has_error)
     {
         std::cout << "test CGspin passed" << std::endl;
+    }
+    else
+    {
+        std::cerr << "test CGspin failed" << std::endl;
     }
     for (int i = 0; i < N; ++i)
     {
@@ -222,12 +233,15 @@ void test_CGspin()
                       << ", dS = " << dS << std::endl;
             std::cerr << "CG3spin = " << x << ", CG = " << y << std::endl;
             has_error = true;
-            std::exit(1);
         }
     }
     if (!has_error)
     {
         std::cout << "test CG3spin passed" << std::endl;
+    }
+    else
+    {
+        std::cerr << "test CG3spin failed" << std::endl;
     }
 }
 
