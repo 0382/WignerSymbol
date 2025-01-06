@@ -4,7 +4,7 @@
 
 [English](README.md)
 
-计算CG系数，Racah系数，Wigner 3j, 6j, 9j 系数，Moshinsky括号等。其中一些公式请看[CGcoefficient.jl](https://0382.github.io/CGcoefficient.jl/stable/formula/)。
+计算CG系数，Racah系数，Wigner 3j, 6j, 9j 系数，Moshinsky括号等。其中一些公式请看[CGcoefficient.jl](https://0382.github.io/CGcoefficient.jl/stable/wigner/)。
 
 ## 使用方法
 
