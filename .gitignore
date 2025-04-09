@@ -1,2 +1,6 @@
 *.exe
 .vscode/
+*.o
+*.a
+*.out
+*.so

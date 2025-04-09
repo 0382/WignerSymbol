@@ -4,7 +4,6 @@
 #include <iostream>
 #include <random>
 
-
 constexpr double sqrt_2 = 1.41421356237309504880;
 
 using namespace util;
