@@ -69,6 +69,16 @@ int exact_9j(qsqrt_ptr ans, int dj1, int dj2, int dj3, int dj4, int dj5, int dj6
 int exact_norm9j(qsqrt_ptr ans, int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
 int exact_Moshinsky(qsqrt_ptr ans, int N, int L, int n, int l, int n1, int l1, int n2, int l2, int lambda);
 
+double ef_CG(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3);
+double ef_3j(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3);
+double ef_CG0(int j1, int j2, int j3);
+double ef_3j0(int j1, int j2, int j3);
+double ef_6j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6);
+double ef_Racah(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6);
+double ef_9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
+double ef_norm9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
+double ef_Moshinsky(int N, int L, int n, int l, int n1, int l1, int n2, int l2, int lambda);
+
 #ifdef __cplusplus
 }
 #endif

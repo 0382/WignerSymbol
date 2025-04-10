@@ -1077,3 +1077,179 @@ int exact_Moshinsky(qsqrt_ptr ans, int N, int L, int n, int l, int n1, int l1, i
     }
     return impl_Moshinsky(ans, N, L, n, l, n1, l1, n2, l2, lambda);
 }
+
+double ef_CG(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3)
+{
+    if (!check_CG(dj1, dj2, dj3, dm1, dm2, dm3))
+    {
+        return 0.0;
+    }
+    qsqrt_t ans;
+    qsqrt_init(ans);
+    int hint = impl_CG(ans, dj1, dj2, dj3, dm1, dm2, dm3);
+    if (hint == 0)
+    {
+        qsqrt_clear(ans);
+        return 0.0;
+    }
+    double ret = qsqrt_get_d(ans);
+    qsqrt_clear(ans);
+    return ret;
+}
+
+double ef_3j(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3)
+{
+    if (!check_3j(dj1, dj2, dj3, dm1, dm2, dm3))
+    {
+        return 0.0;
+    }
+    qsqrt_t ans;
+    qsqrt_init(ans);
+    int hint = impl_3j(ans, dj1, dj2, dj3, dm1, dm2, dm3);
+    if (hint == 0)
+    {
+        qsqrt_clear(ans);
+        return 0.0;
+    }
+    double ret = qsqrt_get_d(ans);
+    qsqrt_clear(ans);
+    return ret;
+}
+
+double ef_CG0(int j1, int j2, int j3)
+{
+    if (!check_CG0(j1, j2, j3))
+    {
+        return 0.0;
+    }
+    qsqrt_t ans;
+    qsqrt_init(ans);
+    int hint = impl_CG0(ans, j1, j2, j3);
+    if (hint == 0)
+    {
+        qsqrt_clear(ans);
+        return 0.0;
+    }
+    double ret = qsqrt_get_d(ans);
+    qsqrt_clear(ans);
+    return ret;
+}
+
+double ef_3j0(int j1, int j2, int j3)
+{
+    if (!check_CG0(j1, j2, j3))
+    {
+        return 0.0;
+    }
+    qsqrt_t ans;
+    qsqrt_init(ans);
+    int hint = impl_3j0(ans, j1, j2, j3);
+    if (hint == 0)
+    {
+        qsqrt_clear(ans);
+        return 0.0;
+    }
+    double ret = qsqrt_get_d(ans);
+    qsqrt_clear(ans);
+    return ret;
+}
+
+double ef_6j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6)
+{
+    if (!check_6j(dj1, dj2, dj3, dj4, dj5, dj6))
+    {
+        return 0.0;
+    }
+    qsqrt_t ans;
+    qsqrt_init(ans);
+    int hint = impl_6j(ans, dj1, dj2, dj3, dj4, dj5, dj6);
+    if (hint == 0)
+    {
+        qsqrt_clear(ans);
+        return 0.0;
+    }
+    double ret = qsqrt_get_d(ans);
+    qsqrt_clear(ans);
+    return ret;
+}
+
+double ef_Racah(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6)
+{
+    if (!check_6j(dj1, dj2, dj5, dj4, dj3, dj6))
+    {
+        return 0.0;
+    }
+    qsqrt_t ans;
+    qsqrt_init(ans);
+    int hint = impl_6j(ans, dj1, dj2, dj5, dj4, dj3, dj6);
+    if (hint == 0)
+    {
+        qsqrt_clear(ans);
+        return 0.0;
+    }
+    double ret = qsqrt_get_d(ans);
+    if (isodd((dj1 + dj2 + dj3 + dj4) / 2))
+    {
+        ret = -ret;
+    }
+    qsqrt_clear(ans);
+    return ret;
+}
+
+double ef_9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9)
+{
+    if (!check_9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9))
+    {
+        return 0.0;
+    }
+    qsqrt_t ans;
+    qsqrt_init(ans);
+    int hint = impl_9j(ans, dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
+    if (hint == 0)
+    {
+        qsqrt_clear(ans);
+        return 0.0;
+    }
+    double ret = qsqrt_get_d(ans);
+    qsqrt_clear(ans);
+    return ret;
+}
+
+double ef_norm9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9)
+{
+    if (!check_9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9))
+    {
+        return 0.0;
+    }
+    qsqrt_t ans;
+    qsqrt_init(ans);
+    int hint = impl_9j(ans, dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
+    if (hint == 0)
+    {
+        qsqrt_clear(ans);
+        return 0.0;
+    }
+    double ret = qsqrt_get_d(ans);
+    qsqrt_clear(ans);
+    ret = sqrt((double)(dj3 + 1) * (dj6 + 1) * (dj7 + 1) * (dj8 + 1));
+    return ret;
+}
+
+double ef_Moshinsky(int N, int L, int n, int l, int n1, int l1, int n2, int l2, int lambda)
+{
+    if (!check_Moshinsky(N, L, n, l, n1, l1, n2, l2, lambda))
+    {
+        return 0.0;
+    }
+    qsqrt_t ans;
+    qsqrt_init(ans);
+    int hint = impl_Moshinsky(ans, N, L, n, l, n1, l1, n2, l2, lambda);
+    if (hint == 0)
+    {
+        qsqrt_clear(ans);
+        return 0.0;
+    }
+    double ret = qsqrt_get_d(ans);
+    qsqrt_clear(ans);
+    return ret;
+}
