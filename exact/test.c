@@ -15,7 +15,6 @@ void test_special_6j(int djmax);
 void test_special_Racah(int djmax);
 void test_special_9j(int djmax);
 void test_Moshinsky();
-void bench_3j(int jmax);
 
 int main()
 {
@@ -25,10 +24,6 @@ int main()
     test_special_Racah(20);
     test_special_9j(10);
     test_Moshinsky();
-    for (int jmax = 10; jmax <= 30; jmax += 5)
-    {
-        bench_3j(jmax);
-    }
     return 0;
 }
 
@@ -303,30 +298,4 @@ void test_Moshinsky()
     }
     qsqrt_clear(x);
     qsqrt_clear(y);
-}
-
-void bench_3j(int jmax)
-{
-    double sum = 0;
-    clock_t start, end;
-    start = clock();
-    const int dj1 = jmax;
-    for (int dj2 = 0; dj2 <= dj1; ++dj2)
-    {
-        for (int dj3 = abs(dj1 - dj2); dj3 <= dj1 + dj2; dj3 += 2)
-        {
-            for (int dm1 = -dj1; dm1 <= 0; dm1 += 2)
-            {
-                for (int dm2 = -dj2; dm2 <= dj2; dm2 += 2)
-                {
-                    const int dm3 = -dm1 - dm2;
-                    sum += ef_3j(dj1, dj2, dj3, dm1, dm2, dm3);
-                }
-            }
-        }
-    }
-    end = clock();
-    double time_spent = (double)(end - start) / CLOCKS_PER_SEC;
-    time_spent *= 1000; // convert to milliseconds
-    printf("3j with Jmax=%d took %f ms, sum=%f\n", jmax, time_spent, sum);
 }

@@ -62,23 +62,18 @@ static void _extend_primes_to(prime_table_t *table, unsigned long n)
 
 // simplify x*\sqrt{t}, move square factors of `t` into `x`
 // only move square factors of primes <= hint
-static void simplify(mpz_ptr x, mpz_ptr t, unsigned long hint)
+// `q, tt` are temporary variables
+static void simplify(mpz_ptr x, mpz_ptr t, unsigned long hint, mpz_ptr q, mpz_ptr tt)
 {
-    static thread_local _Bool initialized = 0;
     static thread_local prime_table_t table = {0, NULL};
-    static thread_local mpz_t q, tt;
-    if (!initialized)
-    {
-        mpz_init(q);
-        mpz_init(tt);
-        initialized = 1;
-    }
     _extend_primes_to(&table, hint);
     mpz_set_ui(tt, 1);
     for (unsigned long i = 0; i < table.size; ++i)
     {
         unsigned long p = table.primes[i];
         if (p > hint)
+            break;
+        if (mpz_cmp_ui(t, p) < 0)
             break;
         unsigned long r = mpz_tdiv_q_ui(q, t, p);
         unsigned long e = 0;
@@ -141,50 +136,59 @@ static void q_add(mpz_ptr t, mpz_ptr an, mpz_ptr ad, mpz_srcptr bn, mpz_srcptr b
 // simplify sn*\sqrt(1/rd) -> sn/sd*\sqrt(rn/rd)
 static void simplify2(mpz_ptr sn, mpz_ptr sd, mpz_ptr rn, mpz_ptr rd, unsigned long hint)
 {
+    mpz_t q, tt;
+    mpz_init(q);
+    mpz_init(tt);
     divgcd(rn, sn, rd);
     divgcd(sd, rn, rd);
     mpz_set_ui(sd, 1);
-    simplify(sn, rn, hint);
-    simplify(sd, rd, hint);
+    simplify(sn, rn, hint, q, tt);
+    simplify(sd, rd, hint, q, tt);
+    mpz_clear(q);
+    mpz_clear(tt);
 }
 
 // simplify sn*\sqrt(rn/rd) -> sn/sd*\sqrt(rn/rd)
 static void simplify3(mpz_ptr sn, mpz_ptr sd, mpz_ptr rn, mpz_ptr rd, unsigned long hint)
 {
+    mpz_t q, tt;
+    mpz_init(q);
+    mpz_init(tt);
     divgcd(sd, rn, rd);
     divgcd(sd, sn, rd);
     mpz_mul(rn, rn, sd);
     divgcd(sd, rn, rd);
     mpz_set_ui(sd, 1);
-    simplify(sn, rn, hint);
-    simplify(sd, rd, hint);
+    simplify(sn, rn, hint, q, tt);
+    simplify(sd, rd, hint, q, tt);
+    mpz_clear(q);
+    mpz_clear(tt);
 }
 
 // simplify sn/sd*\sqrt(rn/rd) -> sn/sd*\sqrt(rn/rd), t is buffer
 static void simplify4(mpz_ptr t, mpz_ptr sn, mpz_ptr sd, mpz_ptr rn, mpz_ptr rd, unsigned long hint)
 {
+    mpz_t q;
+    mpz_init(q);
     divgcd(t, sn, sd);
     divgcd(t, rn, rd);
-    simplify(sn, rn, hint);
-    simplify(sd, rd, hint);
+    simplify(sn, rn, hint, q, t);
+    simplify(sd, rd, hint, q, t);
     divgcd(t, sn, sd);
     divgcd(t, sn, rd);
     mpz_mul(rn, rn, t);
     divgcd(t, sd, rn);
     mpz_mul(rd, rd, t);
     divgcd(t, rn, rd);
+    mpz_clear(q);
 }
 
 void qsqrt_simplify(qsqrt_ptr x, unsigned long hint)
 {
-    static thread_local _Bool is_initialized = 0;
-    static thread_local mpz_t t;
-    if (!is_initialized)
-    {
-        mpz_init(t);
-        is_initialized = 1;
-    }
+    mpz_t t;
+    mpz_init(t);
     simplify4(t, x->sn, x->sd, x->rn, x->rd, hint);
+    mpz_clear(t);
 }
 
 void qsqrt_init(qsqrt_ptr x)
@@ -1210,6 +1214,7 @@ double ef_9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int 
         qsqrt_clear(ans);
         return 0.0;
     }
+    simplify2(ans->sn, ans->sd, ans->rn, ans->rd, hint);
     double ret = qsqrt_get_d(ans);
     qsqrt_clear(ans);
     return ret;
@@ -1229,6 +1234,7 @@ double ef_norm9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, 
         qsqrt_clear(ans);
         return 0.0;
     }
+    simplify2(ans->sn, ans->sd, ans->rn, ans->rd, hint);
     double ret = qsqrt_get_d(ans);
     qsqrt_clear(ans);
     ret = sqrt((double)(dj3 + 1) * (dj6 + 1) * (dj7 + 1) * (dj8 + 1));
