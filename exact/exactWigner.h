@@ -14,10 +14,10 @@ typedef struct _sqrt_rational
 {
     // sn/sd * \sqrt{rn/rd}
     mpz_t sn, sd, rn, rd;
-} qsqrt_t[1];
+} sqrt_rational, qsqrt_t[1];
 
-typedef struct _sqrt_rational *qsqrt_ptr;
-typedef const struct _sqrt_rational *qsqrt_srcptr;
+typedef sqrt_rational *qsqrt_ptr;
+typedef const sqrt_rational *qsqrt_srcptr;
 
 void qsqrt_init(qsqrt_ptr x);
 #define qsqrt_sgn(x) mpz_sgn(x->sn)

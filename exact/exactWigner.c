@@ -1,10 +1,17 @@
 #include "exactWigner.h"
 #include <assert.h>
 #include <math.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <threads.h>
+
+static inline int maxint(int a, int b) { return (a > b) ? a : b; }
+static inline int minint(int a, int b) { return (a < b) ? a : b; }
+static inline _Bool isodd(int x) { return (x % 2 != 0); }
+static inline _Bool iseven(int x) { return (x % 2 == 0); }
+static inline int iphase(int x) { return isodd(x) ? -1 : 1; }
 
 typedef struct _prime_table
 {
@@ -68,7 +75,22 @@ static void simplify(mpz_ptr x, mpz_ptr t, unsigned long hint, mpz_ptr q, mpz_pt
     static thread_local prime_table_t table = {0, NULL};
     _extend_primes_to(&table, hint);
     mpz_set_ui(tt, 1);
-    for (unsigned long i = 0; i < table.size; ++i)
+    mp_bitcnt_t exp2 = mpz_scan1(t, 0);
+    if (exp2 > 0)
+    {
+        unsigned long ei = exp2 / 2;
+        unsigned long ti = exp2 % 2;
+        if (ei > 0)
+        {
+            mpz_mul_2exp(x, x, ei);
+        }
+        if (ti == 1)
+        {
+            mpz_set_ui(tt, 2);
+        }
+        mpz_tdiv_q_2exp(t, t, exp2);
+    }
+    for (unsigned long i = 1; i < table.size; ++i)
     {
         unsigned long p = table.primes[i];
         if (p > hint)
@@ -304,11 +326,52 @@ void qsqrt_print(qsqrt_srcptr x) { gmp_printf("%Zd/%Zd√(%Zd/%Zd)\n", x->sn, x-
 
 double qsqrt_get_d(qsqrt_srcptr x)
 {
-    double sn = mpz_get_d(x->sn);
-    double sd = mpz_get_d(x->sd);
-    double rn = mpz_get_d(x->rn);
-    double rd = mpz_get_d(x->rd);
-    return sn / sd * sqrt(rn / rd);
+    signed long esn = 0, esd = 0, ern = 0, erd = 0;
+    double sn = mpz_get_d_2exp(&esn, x->sn);
+    double sd = mpz_get_d_2exp(&esd, x->sd);
+    double rn = mpz_get_d_2exp(&ern, x->rn);
+    double rd = mpz_get_d_2exp(&erd, x->rd);
+    double ret = sn / sd * sqrt(rn / rd);
+    long exp = 2 * (esn - esd) + (ern - erd);
+    long oexp = exp & 1;
+    exp = (exp - oexp) / 2;
+    ret = ldexp(ret, exp);
+    if (oexp != 0)
+        ret *= sqrt(2);
+    return ret;
+}
+
+// for 9j
+static double qsqrt_get_d2(qsqrt_srcptr x)
+{
+    signed long esn = 0, erd = 0;
+    double sn = mpz_get_d_2exp(&esn, x->sn);
+    double rd = mpz_get_d_2exp(&erd, x->rd);
+    double ret = sn / sqrt(rd);
+    long exp = 2 * esn - erd;
+    long oexp = exp & 1;
+    exp = (exp - oexp) / 2;
+    ret = ldexp(ret, exp);
+    if (oexp != 0)
+        ret *= sqrt(2);
+    return ret;
+}
+
+// for 3j, 6j
+static double qsqrt_get_d3(qsqrt_srcptr x)
+{
+    signed long esn = 0, ern = 0, erd = 0;
+    double sn = mpz_get_d_2exp(&esn, x->sn);
+    double rn = mpz_get_d_2exp(&ern, x->rn);
+    double rd = mpz_get_d_2exp(&erd, x->rd);
+    double ret = sn * sqrt(rn / rd);
+    long exp = 2 * esn + ern - erd;
+    long oexp = exp & 1;
+    exp = (exp - oexp) / 2;
+    ret = ldexp(ret, exp);
+    if (oexp != 0)
+        ret *= sqrt(2);
+    return ret;
 }
 
 char *qsqrt_get_str(qsqrt_srcptr x, char *str)
@@ -340,11 +403,6 @@ char *qsqrt_get_str(qsqrt_srcptr x, char *str)
     return str;
 }
 
-static inline int maxint(int a, int b) { return (a > b) ? a : b; }
-static inline int minint(int a, int b) { return (a < b) ? a : b; }
-static inline _Bool isodd(int x) { return (x % 2 != 0); }
-static inline _Bool iseven(int x) { return (x % 2 == 0); }
-static inline int iphase(int x) { return isodd(x) ? -1 : 1; }
 // assume dj1, dj2, dj3 are all non-negative
 static inline _Bool check_couple(int dj1, int dj2, int dj3)
 {
@@ -474,7 +532,6 @@ static int impl_CG(qsqrt_ptr ans, int dj1, int dj2, int dj3, int dm1, int dm2, i
     mpz_mul(rd, rd, bin(t, dj1, j1mm1));
     mpz_mul(rd, rd, bin(t, dj2, j2mm2));
     mpz_mul(rd, rd, bin(t, dj3, j3mm3));
-    simplify3(ans->sn, ans->sd, ans->rn, ans->rd, J + 1);
     return J + 1;
 }
 
@@ -493,7 +550,6 @@ static int impl_CG0(qsqrt_ptr ans, int j1, int j2, int j3)
     mpz_ptr rd = ans->rd;
     bin(rd, J + 1, 2 * j3 + 1);
     mpz_mul(rd, rd, bin(t, 2 * j3, J - 2 * j1));
-    simplify2(ans->sn, ans->sd, ans->rn, ans->rd, J + 1);
     return J + 1;
 }
 
@@ -513,7 +569,6 @@ static int impl_3j0(qsqrt_ptr ans, int j1, int j2, int j3)
     mpz_set_ui(rd, (unsigned long)(2 * j3 + 1));
     mpz_mul(rd, rd, bin(t, J + 1, 2 * j3 + 1));
     mpz_mul(rd, rd, bin(t, 2 * j3, J - 2 * j1));
-    simplify2(ans->sn, ans->sd, ans->rn, ans->rd, J + 1);
     return J + 1;
 }
 
@@ -560,7 +615,6 @@ static int impl_3j(qsqrt_ptr ans, int dj1, int dj2, int dj3, int dm1, int dm2, i
     mpz_mul(rd, rd, bin(t, dj1, j1mm1));
     mpz_mul(rd, rd, bin(t, dj2, j2mm2));
     mpz_mul(rd, rd, bin(t, dj3, j3mm3));
-    simplify3(ans->sn, ans->sd, ans->rn, ans->rd, J + 1);
     return J + 1;
 }
 
@@ -612,12 +666,11 @@ static int impl_6j(qsqrt_ptr ans, int dj1, int dj2, int dj3, int dj4, int dj5, i
     mpz_mul(rd, rd, bin(t, dj4, jpm426));
     mpz_mul_ui(rd, rd, (unsigned long)(dj4 + 1));
     mpz_mul_ui(rd, rd, (unsigned long)(dj4 + 1));
-    simplify3(ans->sn, ans->sd, ans->rn, ans->rd, high + 1);
     return high + 1;
 }
 
 // not simplfied
-static int impl_9j(qsqrt_ptr ans, int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9)
+static int impl_norm_9j(qsqrt_ptr ans, int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9)
 {
     const int j123 = (dj1 + dj2 + dj3) / 2;
     const int j456 = (dj4 + dj5 + dj6) / 2;
@@ -693,9 +746,7 @@ static int impl_9j(qsqrt_ptr ans, int dj1, int dj2, int dj3, int dj4, int dj5, i
     }
     if (mpz_sgn(sum) == 0)
     {
-        mpz_set_ui(Pt, 1);
-        mpz_set_ui(ABC, 1);
-        mpz_set_ui(tx, 1);
+        qsqrt_set_ui(ans, 0);
         mpz_clear(t);
         return 0;
     }
@@ -704,12 +755,8 @@ static int impl_9j(qsqrt_ptr ans, int dj1, int dj2, int dj3, int dj4, int dj5, i
         mpz_neg(sum, sum);
     }
     mpz_ptr P0 = ans->rd;
-    mpz_set_ui(P0, dj3 + 1);
-    mpz_mul_ui(P0, P0, dj6 + 1);
-    mpz_mul_ui(P0, P0, dj9 + 1);
-    mpz_mul_ui(P0, P0, dj7 + 1);
-    mpz_mul_ui(P0, P0, dj8 + 1);
-    mpz_mul_ui(P0, P0, dj9 + 1);
+    mpz_set_ui(P0, dj9 + 1);
+    mpz_pow_ui(P0, P0, 2);
     mpz_mul(P0, P0, bin(t, j123 + 1, dj3 + 1));
     mpz_mul(P0, P0, bin(t, dj3, pm231));
     mpz_mul(P0, P0, bin(t, j456 + 1, dj6 + 1));
@@ -944,16 +991,13 @@ static int impl_Moshinsky(qsqrt_ptr ans, int Ncom, int Lcom, int nrel, int lrel,
             }
         }
     }
-    int hint = maxint(chi + 2, maxint(Lcom + lrel, l1 + l2) + lam + 1);
     if (mpz_sgn(sum_n) == 0)
     {
-        hint = 0;
         qsqrt_set_ui(ans, 0);
+        return 0;
     }
-    else
-    {
-        simplify4(t, sum_n, sum_d, Rn, Rd, hint);
-    }
+    int hint = maxint(chi + 2, maxint(Lcom + lrel, l1 + l2) + lam + 1);
+    simplify4(t, sum_n, sum_d, Rn, Rd, hint);
     mpz_clear(t);
     mpz_clear(tx);
     mpz_clear(Pt);
@@ -978,7 +1022,13 @@ int exact_CG(qsqrt_ptr ans, int dj1, int dj2, int dj3, int dm1, int dm2, int dm3
         qsqrt_set_ui(ans, 0);
         return 0;
     }
-    return impl_CG(ans, dj1, dj2, dj3, dm1, dm2, dm3);
+    const int hint = impl_CG(ans, dj1, dj2, dj3, dm1, dm2, dm3);
+    if (hint == 0)
+    {
+        return 0;
+    }
+    simplify3(ans->sn, ans->sd, ans->rn, ans->rd, hint);
+    return hint;
 }
 
 int exact_3j(qsqrt_ptr ans, int dj1, int dj2, int dj3, int dm1, int dm2, int dm3)
@@ -988,7 +1038,13 @@ int exact_3j(qsqrt_ptr ans, int dj1, int dj2, int dj3, int dm1, int dm2, int dm3
         qsqrt_set_ui(ans, 0);
         return 0;
     }
-    return impl_3j(ans, dj1, dj2, dj3, dm1, dm2, dm3);
+    const int hint = impl_3j(ans, dj1, dj2, dj3, dm1, dm2, dm3);
+    if (hint == 0)
+    {
+        return 0;
+    }
+    simplify3(ans->sn, ans->sd, ans->rn, ans->rd, hint);
+    return hint;
 }
 
 int exact_CG0(qsqrt_ptr ans, int j1, int j2, int j3)
@@ -998,7 +1054,9 @@ int exact_CG0(qsqrt_ptr ans, int j1, int j2, int j3)
         qsqrt_set_ui(ans, 0);
         return 0;
     }
-    return impl_CG0(ans, j1, j2, j3);
+    const int hint = impl_CG0(ans, j1, j2, j3);
+    simplify2(ans->sn, ans->sd, ans->rn, ans->rd, hint);
+    return hint;
 }
 
 int exact_3j0(qsqrt_ptr ans, int j1, int j2, int j3)
@@ -1008,7 +1066,9 @@ int exact_3j0(qsqrt_ptr ans, int j1, int j2, int j3)
         qsqrt_set_ui(ans, 0);
         return 0;
     }
-    return impl_3j0(ans, j1, j2, j3);
+    const int hint = impl_3j0(ans, j1, j2, j3);
+    simplify2(ans->sn, ans->sd, ans->rn, ans->rd, hint);
+    return hint;
 }
 
 int exact_6j(qsqrt_ptr ans, int dj1, int dj2, int dj3, int dj4, int dj5, int dj6)
@@ -1018,17 +1078,22 @@ int exact_6j(qsqrt_ptr ans, int dj1, int dj2, int dj3, int dj4, int dj5, int dj6
         qsqrt_set_ui(ans, 0);
         return 0;
     }
-    return impl_6j(ans, dj1, dj2, dj3, dj4, dj5, dj6);
+    int hint = impl_6j(ans, dj1, dj2, dj3, dj4, dj5, dj6);
+    if (hint == 0)
+    {
+        return 0;
+    }
+    simplify3(ans->sn, ans->sd, ans->rn, ans->rd, hint);
+    return hint;
 }
 
 int exact_Racah(qsqrt_ptr ans, int dj1, int dj2, int dj3, int dj4, int dj5, int dj6)
 {
-    if (!check_6j(dj1, dj2, dj5, dj4, dj3, dj6))
+    const int hint = exact_6j(ans, dj1, dj2, dj5, dj4, dj3, dj6);
+    if (hint == 0)
     {
-        qsqrt_set_ui(ans, 0);
         return 0;
     }
-    const int hint = impl_6j(ans, dj1, dj2, dj5, dj4, dj3, dj6);
     if (isodd((dj1 + dj2 + dj3 + dj4) / 2))
     {
         mpz_neg(ans->sn, ans->sn);
@@ -1043,11 +1108,15 @@ int exact_9j(qsqrt_ptr ans, int dj1, int dj2, int dj3, int dj4, int dj5, int dj6
         qsqrt_set_ui(ans, 0);
         return 0;
     }
-    const int hint = impl_9j(ans, dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
+    const int hint = impl_norm_9j(ans, dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
     if (hint == 0)
     {
         return 0;
     }
+    mpz_mul_ui(ans->rd, ans->rd, (unsigned long)(dj3 + 1));
+    mpz_mul_ui(ans->rd, ans->rd, (unsigned long)(dj6 + 1));
+    mpz_mul_ui(ans->rd, ans->rd, (unsigned long)(dj7 + 1));
+    mpz_mul_ui(ans->rd, ans->rd, (unsigned long)(dj8 + 1));
     simplify2(ans->sn, ans->sd, ans->rn, ans->rd, hint);
     return hint;
 }
@@ -1059,16 +1128,12 @@ int exact_norm9j(qsqrt_ptr ans, int dj1, int dj2, int dj3, int dj4, int dj5, int
         qsqrt_set_ui(ans, 0);
         return 0;
     }
-    const int hint = impl_9j(ans, dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
+    const int hint = impl_norm_9j(ans, dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
     if (hint == 0)
     {
         return 0;
     }
-    mpz_set_ui(ans->rn, (unsigned long)(dj3 + 1));
-    mpz_mul_ui(ans->rn, ans->rn, (unsigned long)(dj6 + 1));
-    mpz_mul_ui(ans->rn, ans->rn, (unsigned long)(dj7 + 1));
-    mpz_mul_ui(ans->rn, ans->rn, (unsigned long)(dj8 + 1));
-    simplify3(ans->sn, ans->sd, ans->rn, ans->rd, hint);
+    simplify2(ans->sn, ans->sd, ans->rn, ans->rd, hint);
     return hint;
 }
 
@@ -1090,13 +1155,13 @@ double ef_CG(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3)
     }
     qsqrt_t ans;
     qsqrt_init(ans);
-    int hint = impl_CG(ans, dj1, dj2, dj3, dm1, dm2, dm3);
+    const int hint = impl_CG(ans, dj1, dj2, dj3, dm1, dm2, dm3);
     if (hint == 0)
     {
         qsqrt_clear(ans);
         return 0.0;
     }
-    double ret = qsqrt_get_d(ans);
+    double ret = qsqrt_get_d3(ans);
     qsqrt_clear(ans);
     return ret;
 }
@@ -1109,13 +1174,13 @@ double ef_3j(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3)
     }
     qsqrt_t ans;
     qsqrt_init(ans);
-    int hint = impl_3j(ans, dj1, dj2, dj3, dm1, dm2, dm3);
+    const int hint = impl_3j(ans, dj1, dj2, dj3, dm1, dm2, dm3);
     if (hint == 0)
     {
         qsqrt_clear(ans);
         return 0.0;
     }
-    double ret = qsqrt_get_d(ans);
+    double ret = qsqrt_get_d3(ans);
     qsqrt_clear(ans);
     return ret;
 }
@@ -1128,13 +1193,13 @@ double ef_CG0(int j1, int j2, int j3)
     }
     qsqrt_t ans;
     qsqrt_init(ans);
-    int hint = impl_CG0(ans, j1, j2, j3);
+    const int hint = impl_CG0(ans, j1, j2, j3);
     if (hint == 0)
     {
         qsqrt_clear(ans);
         return 0.0;
     }
-    double ret = qsqrt_get_d(ans);
+    double ret = qsqrt_get_d2(ans);
     qsqrt_clear(ans);
     return ret;
 }
@@ -1147,13 +1212,13 @@ double ef_3j0(int j1, int j2, int j3)
     }
     qsqrt_t ans;
     qsqrt_init(ans);
-    int hint = impl_3j0(ans, j1, j2, j3);
+    const int hint = impl_3j0(ans, j1, j2, j3);
     if (hint == 0)
     {
         qsqrt_clear(ans);
         return 0.0;
     }
-    double ret = qsqrt_get_d(ans);
+    double ret = qsqrt_get_d2(ans);
     qsqrt_clear(ans);
     return ret;
 }
@@ -1166,57 +1231,31 @@ double ef_6j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6)
     }
     qsqrt_t ans;
     qsqrt_init(ans);
-    int hint = impl_6j(ans, dj1, dj2, dj3, dj4, dj5, dj6);
+    const int hint = impl_6j(ans, dj1, dj2, dj3, dj4, dj5, dj6);
     if (hint == 0)
     {
         qsqrt_clear(ans);
         return 0.0;
     }
-    double ret = qsqrt_get_d(ans);
+    double ret = qsqrt_get_d3(ans);
     qsqrt_clear(ans);
     return ret;
 }
 
 double ef_Racah(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6)
 {
-    if (!check_6j(dj1, dj2, dj5, dj4, dj3, dj6))
-    {
-        return 0.0;
-    }
-    qsqrt_t ans;
-    qsqrt_init(ans);
-    int hint = impl_6j(ans, dj1, dj2, dj5, dj4, dj3, dj6);
-    if (hint == 0)
-    {
-        qsqrt_clear(ans);
-        return 0.0;
-    }
-    double ret = qsqrt_get_d(ans);
+    double ret = ef_6j(dj1, dj2, dj5, dj4, dj3, dj6);
     if (isodd((dj1 + dj2 + dj3 + dj4) / 2))
     {
         ret = -ret;
     }
-    qsqrt_clear(ans);
     return ret;
 }
 
 double ef_9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9)
 {
-    if (!check_9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9))
-    {
-        return 0.0;
-    }
-    qsqrt_t ans;
-    qsqrt_init(ans);
-    int hint = impl_9j(ans, dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
-    if (hint == 0)
-    {
-        qsqrt_clear(ans);
-        return 0.0;
-    }
-    simplify2(ans->sn, ans->sd, ans->rn, ans->rd, hint);
-    double ret = qsqrt_get_d(ans);
-    qsqrt_clear(ans);
+    double ret = ef_norm9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
+    ret /= sqrt((double)(dj3 + 1) * (dj6 + 1) * (dj7 + 1) * (dj8 + 1));
     return ret;
 }
 
@@ -1228,16 +1267,14 @@ double ef_norm9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, 
     }
     qsqrt_t ans;
     qsqrt_init(ans);
-    int hint = impl_9j(ans, dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
+    const int hint = impl_norm_9j(ans, dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9);
     if (hint == 0)
     {
         qsqrt_clear(ans);
         return 0.0;
     }
-    simplify2(ans->sn, ans->sd, ans->rn, ans->rd, hint);
-    double ret = qsqrt_get_d(ans);
+    double ret = qsqrt_get_d2(ans);
     qsqrt_clear(ans);
-    ret = sqrt((double)(dj3 + 1) * (dj6 + 1) * (dj7 + 1) * (dj8 + 1));
     return ret;
 }
 
