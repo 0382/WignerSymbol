@@ -261,9 +261,10 @@ void test_Moshinsky()
     static const int test_ans[9][4] = {{-1, 2, 7, 10},  {1, 2, 1, 1},      {0, 1, 1, 1},
                                        {-1, 2, 5, 14},  {-1, 6, 1, 2},     {1, 24, 65, 3},
                                        {-5, 96, 13, 7}, {-1, 28, 195, 14}, {4463, 25872, 1, 3}};
-    qsqrt_t x, y;
+    qsqrt_t x, y, z;
     qsqrt_init(x);
     qsqrt_init(y);
+    qsqrt_init(z);
     int ok = 1;
     for (int i = 0; i < 9; ++i)
     {
@@ -277,25 +278,36 @@ void test_Moshinsky()
         int l2 = test_set[i][7];
         int lambda = test_set[i][8];
         exact_Moshinsky(x, Ncom, Lcom, nrel, lrel, n1, l1, n2, l2, lambda);
+        exact_Moshinsky_d(y, Ncom, Lcom, nrel, lrel, n1, l1, n2, l2, lambda, 2, 2);
         int sn = test_ans[i][0];
         int sd = test_ans[i][1];
         int rn = test_ans[i][2];
         int rd = test_ans[i][3];
-        qsqrt_set_si4(y, sn, sd, rn, rd);
-        if (!qsqrt_eq(x, y))
+        qsqrt_set_si4(z, sn, sd, rn, rd);
+        if (!qsqrt_eq(x, z))
         {
             printf(
                 "test Moshinsky failed for Ncom=%d, Lcom=%d, nrel=%d, lrel=%d, n1=%d, l1=%d, n2=%d, l2=%d, lambda=%d\n",
                 Ncom, Lcom, nrel, lrel, n1, l1, n2, l2, lambda);
             qsqrt_print(x);
+            qsqrt_print(z);
+            ok = 0;
+        }
+        if (!qsqrt_eq(y, z))
+        {
+            printf("test Moshinsky_d failed for Ncom=%d, Lcom=%d, nrel=%d, lrel=%d, n1=%d, l1=%d, n2=%d, l2=%d, "
+                   "lambda=%d\n",
+                   Ncom, Lcom, nrel, lrel, n1, l1, n2, l2, lambda);
             qsqrt_print(y);
+            qsqrt_print(z);
             ok = 0;
         }
     }
     if (ok)
     {
-        printf("9 test Moshinsky passed\n");
+        printf("18 test Moshinsky passed\n");
     }
     qsqrt_clear(x);
     qsqrt_clear(y);
+    qsqrt_clear(z);
 }

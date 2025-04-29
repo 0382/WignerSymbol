@@ -68,6 +68,10 @@ int exact_Racah(qsqrt_ptr ans, int dj1, int dj2, int dj3, int dj4, int dj5, int 
 int exact_9j(qsqrt_ptr ans, int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
 int exact_norm9j(qsqrt_ptr ans, int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
 int exact_Moshinsky(qsqrt_ptr ans, int N, int L, int n, int l, int n1, int l1, int n2, int l2, int lambda);
+// Moshinsky coefficient when `d = (m1\omega)/(m2\omega) != 1`
+// Only the ratio of `m1w1` and `m2w2` is needed
+int exact_Moshinsky_d(qsqrt_ptr ans, int N, int L, int n, int l, int n1, int l1, int n2, int l2, int lambda, int m1w1,
+                      int m2w2);
 
 double ef_CG(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3);
 double ef_3j(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3);
@@ -78,6 +82,7 @@ double ef_Racah(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6);
 double ef_9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
 double ef_norm9j(int dj1, int dj2, int dj3, int dj4, int dj5, int dj6, int dj7, int dj8, int dj9);
 double ef_Moshinsky(int N, int L, int n, int l, int n1, int l1, int n2, int l2, int lambda);
+double ef_Moshinsky_d(int N, int L, int n, int l, int n1, int l1, int n2, int l2, int lambda, int m1w1, int m2w2);
 
 #ifdef __cplusplus
 }

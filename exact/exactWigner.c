@@ -1015,6 +1015,214 @@ static int impl_Moshinsky(qsqrt_ptr ans, int Ncom, int Lcom, int nrel, int lrel,
     return hint;
 }
 
+static int gcdint(int a, int b)
+{
+    if (b == 0)
+        return a;
+    return gcdint(b, a % b);
+}
+
+static int divgcdint(int *a, int *b)
+{
+    const int g = gcdint(*a, *b);
+    *a /= g;
+    *b /= g;
+    return g;
+}
+
+static int impl_Moshinsky_d(qsqrt_ptr ans, int Ncom, int Lcom, int nrel, int lrel, int n1, int l1, int n2, int l2,
+                            int lam, int m1w1, int m2w2)
+{
+    const int F = 2 * Ncom + Lcom;
+    const int f = 2 * nrel + lrel;
+    const int f1 = 2 * n1 + l1;
+    const int f2 = 2 * n2 + l2;
+    const int chi = f1 + f2;
+    const int NL = Ncom + Lcom;
+    const int nl = nrel + lrel;
+    const int nl1 = n1 + l1;
+    const int nl2 = n2 + l2;
+    divgcdint(&m1w1, &m2w2);
+
+    mpz_ptr sum_n = ans->sn;
+    mpz_ptr sum_d = ans->sd;
+    mpz_ptr Rn = ans->rn;
+    mpz_ptr Rd = ans->rd;
+
+    mpz_t t, tx, Pt, ABC, M9j;
+    mpz_init(t);
+    mpz_init(tx);
+    mpz_init(Pt);
+    mpz_init(ABC);
+    mpz_init(M9j);
+    mpz_t FAn, FAd, An, Ad, Bn, Bd, Cn, Cd, Dn, Dd;
+    mpz_init(FAn);
+    mpz_init(FAd);
+    mpz_init(An);
+    mpz_init(Ad);
+    mpz_init(Bn);
+    mpz_init(Bd);
+    mpz_init(Cn);
+    mpz_init(Cd);
+    mpz_init(Dn);
+    mpz_init(Dd);
+
+    bin(Rn, chi + 2, f1 + 1);
+    bin(Rd, chi + 2, F + 1);
+    mpz_mul(Rd, Rd, bin(t, Lcom + lrel + lam + 1, 2 * lam + 1));
+    mpz_mul(Rd, Rd, bin(t, 2 * lam, lam + Lcom - lrel));
+    mpz_mul(Rd, Rd, bin(t, l1 + l2 + lam + 1, 2 * lam + 1));
+    mpz_mul(Rd, Rd, bin(t, 2 * lam, lam + l1 - l2));
+    divgcd(t, Rn, Rd);
+
+    mpz_mul(Rn, Rn, bin(t, 2 * NL + 1, NL));
+    mpz_mul_ui(Rd, Rd, 2 * Lcom + 1);
+    mpz_mul(Rd, Rd, bin(t, F + 1, Ncom));
+
+    mpz_mul(Rn, Rn, bin(t, 2 * nl + 1, nl));
+    mpz_mul_ui(Rd, Rd, 2 * lrel + 1);
+    mpz_mul(Rd, Rd, bin(t, f + 1, nrel));
+
+    mpz_mul(Rn, Rn, bin(t, 2 * nl1 + 1, nl1));
+    mpz_mul_ui(Rd, Rd, 2 * l1 + 1);
+    mpz_mul(Rd, Rd, bin(t, f1 + 1, n1));
+
+    mpz_mul(Rn, Rn, bin(t, 2 * nl2 + 1, nl2));
+    mpz_mul_ui(Rd, Rd, 2 * l2 + 1);
+    mpz_mul(Rd, Rd, bin(t, f2 + 1, n2));
+    divgcd(t, Rn, Rd);
+
+    mpz_set_ui(t, (unsigned long)(f1 + 2));
+    mpz_mul_ui(t, t, (unsigned long)(f2 + 2));
+    mpz_mul_ui(t, t, (unsigned long)(2 * lam + 1));
+    mpz_pow_ui(t, t, 2);
+    mpz_mul_2exp(t, t, (Lcom + lrel + l1 + l2));
+    mpz_mul(Rd, Rd, t);
+    divgcd(t, Rn, Rd);
+
+    if (f - f1 > 0)
+    {
+        mpz_ui_pow_ui(t, m1w1, f - f1);
+        mpz_mul(Rn, Rn, t);
+    }
+    else if (f - f1 < 0)
+    {
+        mpz_ui_pow_ui(t, m1w1, f1 - f);
+        mpz_mul(Rd, Rd, t);
+    }
+    mpz_ui_pow_ui(t, m2w2, f1 + F);
+    mpz_mul(Rn, Rn, t);
+    mpz_ui_pow_ui(t, m1w1 + m2w2, f + F);
+    mpz_mul(Rd, Rd, t);
+    divgcd(t, Rn, Rd);
+
+    mpz_set_ui(sum_n, 0);
+    mpz_set_ui(sum_d, 1);
+    for (int fa = 0; fa <= minint(f1, F); ++fa)
+    {
+        const int fb = f1 - fa;
+        const int fc = F - fa;
+        const int fd = f2 - fc;
+        if (fd < 0)
+            continue;
+        bin(FAn, f1 + 2, fa + 1);
+        mpz_mul(FAn, FAn, bin(t, f2 + 2, fc + 1));
+        mpz_ui_pow_ui(t, m1w1, fa);
+        mpz_mul(FAn, FAn, t);
+        mpz_ui_pow_ui(FAd, m2w2, fa);
+        divgcd(t, FAn, FAd);
+        for (int la = fa & 1; la <= fa; la += 2)
+        {
+            const int na = (fa - la) / 2;
+            const int nla = na + la;
+            mpz_mul_ui(An, FAn, 2 * la + 1);
+            mpz_mul(An, An, bin(t, fa + 1, na));
+            mpz_mul_2exp(An, An, la);
+            mpz_mul(Ad, FAd, bin(t, 2 * nla + 1, nla));
+            divgcd(t, An, Ad);
+            for (int lb = abs(l1 - la); lb <= minint(l1 + la, fb); lb += 2)
+            {
+                const int nb = (fb - lb) / 2;
+                const int nlb = nb + lb;
+                mpz_mul_ui(Bn, An, 2 * lb + 1);
+                mpz_mul(Bn, Bn, bin(t, fb + 1, nb));
+                mpz_mul_2exp(Bn, Bn, lb);
+                mpz_mul(Bd, Ad, bin(t, 2 * nlb + 1, nlb));
+                mpz_mul(Bn, Bn, omega(tx, t, la, l1, (la + lb + l1) / 2));
+                // Δ(lalbl1)
+                mpz_mul(Bd, Bd, bin(t, la + lb + l1 + 1, 2 * l1 + 1));
+                mpz_mul(Bd, Bd, bin(t, 2 * l1, l1 + la - lb));
+                divgcd(t, Bn, Bd);
+                for (int lc = abs(Lcom - la); lc <= minint(Lcom + la, fc); lc += 2)
+                {
+                    const int nc = (fc - lc) / 2;
+                    const int nlc = nc + lc;
+                    mpz_mul_ui(Cn, Bn, 2 * lc + 1);
+                    mpz_mul(Cn, Cn, bin(t, fc + 1, nc));
+                    mpz_mul_2exp(Cn, Cn, lc);
+                    mpz_mul(Cd, Bd, bin(t, 2 * nlc + 1, nlc));
+                    mpz_mul(Cn, Cn, omega(tx, t, la, Lcom, (la + lc + Lcom) / 2));
+                    // Δ(lalcl3)
+                    mpz_mul(Cd, Cd, bin(t, la + lc + Lcom + 1, 2 * Lcom + 1));
+                    mpz_mul(Cd, Cd, bin(t, 2 * Lcom, Lcom + la - lc));
+                    divgcd(t, Cn, Cd);
+                    const int ldmin = maxint(abs(l2 - lc), abs(lrel - lb));
+                    const int ldmax = minint(fd, minint(l2 + lc, lrel + lb));
+                    for (int ld = ldmin; ld <= ldmax; ld += 2)
+                    {
+                        const int nd = (fd - ld) / 2;
+                        const int nld = nd + ld;
+                        mpz_mul_ui(Dn, Cn, 2 * ld + 1);
+                        mpz_mul(Dn, Dn, bin(t, fd + 1, nd));
+                        mpz_mul_2exp(Dn, Dn, ld);
+                        mpz_mul(Dd, Cd, bin(t, 2 * nld + 1, nld));
+                        mpz_mul(Dn, Dn, omega(tx, t, lc, l2, (lc + ld + l2) / 2));
+                        mpz_mul(Dn, Dn, omega(tx, t, lb, lrel, (lb + ld + lrel) / 2));
+                        // Δ(lbldl4)
+                        mpz_mul(Dd, Dd, bin(t, lb + ld + lrel + 1, 2 * lrel + 1));
+                        mpz_mul(Dd, Dd, bin(t, 2 * lrel, lrel + lb - ld));
+                        // Δ(lcldl2)
+                        mpz_mul(Dd, Dd, bin(t, lc + ld + l2 + 1, 2 * l2 + 1));
+                        mpz_mul(Dd, Dd, bin(t, 2 * l2, l2 + lc - ld));
+                        divgcd(t, Dn, Dd);
+                        _m9j(M9j, t, tx, Pt, ABC, la, lb, l1, lc, ld, l2, Lcom, lrel, lam);
+                        mpz_mul(Dn, Dn, M9j);
+                        divgcd(t, Dn, Dd);
+                        if (isodd(ld))
+                        {
+                            mpz_neg(Dn, Dn);
+                        }
+                        q_add(t, sum_n, sum_d, Dn, Dd);
+                    }
+                }
+            }
+        }
+    }
+    if (mpz_sgn(sum_n) == 0)
+    {
+        qsqrt_set_ui(ans, 0);
+        return 0;
+    }
+    int hint = maxint(chi + 2, maxint(Lcom + lrel, l1 + l2) + lam + 1);
+    simplify4(t, sum_n, sum_d, Rn, Rd, hint);
+    mpz_clear(t);
+    mpz_clear(tx);
+    mpz_clear(Pt);
+    mpz_clear(ABC);
+    mpz_clear(M9j);
+    mpz_clear(FAn);
+    mpz_clear(FAd);
+    mpz_clear(An);
+    mpz_clear(Ad);
+    mpz_clear(Bn);
+    mpz_clear(Bd);
+    mpz_clear(Cn);
+    mpz_clear(Cd);
+    mpz_clear(Dn);
+    mpz_clear(Dd);
+    return hint;
+}
+
 int exact_CG(qsqrt_ptr ans, int dj1, int dj2, int dj3, int dm1, int dm2, int dm3)
 {
     if (!check_CG(dj1, dj2, dj3, dm1, dm2, dm3))
@@ -1145,6 +1353,17 @@ int exact_Moshinsky(qsqrt_ptr ans, int N, int L, int n, int l, int n1, int l1, i
         return 0;
     }
     return impl_Moshinsky(ans, N, L, n, l, n1, l1, n2, l2, lambda);
+}
+
+int exact_Moshinsky_d(qsqrt_ptr ans, int N, int L, int n, int l, int n1, int l1, int n2, int l2, int lambda, int m1w1,
+                      int m2w2)
+{
+    if (!check_Moshinsky(N, L, n, l, n1, l1, n2, l2, lambda))
+    {
+        qsqrt_set_ui(ans, 0);
+        return 0;
+    }
+    return impl_Moshinsky_d(ans, N, L, n, l, n1, l1, n2, l2, lambda, m1w1, m2w2);
 }
 
 double ef_CG(int dj1, int dj2, int dj3, int dm1, int dm2, int dm3)
@@ -1287,6 +1506,25 @@ double ef_Moshinsky(int N, int L, int n, int l, int n1, int l1, int n2, int l2, 
     qsqrt_t ans;
     qsqrt_init(ans);
     int hint = impl_Moshinsky(ans, N, L, n, l, n1, l1, n2, l2, lambda);
+    if (hint == 0)
+    {
+        qsqrt_clear(ans);
+        return 0.0;
+    }
+    double ret = qsqrt_get_d(ans);
+    qsqrt_clear(ans);
+    return ret;
+}
+
+double ef_Moshinsky_d(int N, int L, int n, int l, int n1, int l1, int n2, int l2, int lambda, int m1w1, int m2w2)
+{
+    if (!check_Moshinsky(N, L, n, l, n1, l1, n2, l2, lambda))
+    {
+        return 0.0;
+    }
+    qsqrt_t ans;
+    qsqrt_init(ans);
+    int hint = impl_Moshinsky_d(ans, N, L, n, l, n1, l1, n2, l2, lambda, m1w1, m2w2);
     if (hint == 0)
     {
         qsqrt_clear(ans);
