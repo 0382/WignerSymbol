@@ -489,62 +489,62 @@ class WignerSymbols
         if (!check_couple_int(L, l, lambda) || !check_couple_int(l1, l2, lambda))
             return 0.0;
         // check energy conservation
-        const int f1 = 2 * n1 + l1;
-        const int f2 = 2 * n2 + l2;
-        const int F = 2 * N + L;
-        const int f = 2 * n + l;
-        if (f1 + f2 != f + F)
+        const int e1 = 2 * n1 + l1;
+        const int e2 = 2 * n2 + l2;
+        const int E = 2 * N + L;
+        const int e = 2 * n + l;
+        if (e1 + e2 != e + E)
             return 0;
 
         const int nl1 = n1 + l1;
         const int nl2 = n2 + l2;
         const int NL = N + L;
         const int nl = n + l;
-        const int chi = f1 + f2;
+        const int chi = e1 + e2;
 
         const double cos_beta = 1.0 / std::sqrt(1.0 + tan_beta * tan_beta);
         const double sin_beta = tan_beta * cos_beta;
-        double pre = unsafe_binomial(chi + 2, f1 + 1) / unsafe_binomial(chi + 2, F + 1);
+        double pre = unsafe_binomial(chi + 2, e1 + 1) / unsafe_binomial(chi + 2, E + 1);
         pre *= unsafe_binomial(L + l + lambda + 1, 2 * lambda + 1) * unsafe_binomial(2 * lambda, lambda + L - l);
         pre /= unsafe_binomial(l1 + l2 + lambda + 1, 2 * lambda + 1) * unsafe_binomial(2 * lambda, lambda + l1 - l2);
 
-        pre *= (2 * l1 + 1) * unsafe_binomial(2 * nl1 + 1, nl1) / (unsafe_binomial(f1 + 1, n1) * quick_pow(2.0, l1));
-        pre *= (2 * l2 + 1) * unsafe_binomial(2 * nl2 + 1, nl2) / (unsafe_binomial(f2 + 1, n2) * quick_pow(2.0, l2));
-        pre *= (2 * L + 1) * unsafe_binomial(2 * NL + 1, NL) / (unsafe_binomial(F + 1, N) * quick_pow(2.0, L));
-        pre *= (2 * l + 1) * unsafe_binomial(2 * nl + 1, nl) / (unsafe_binomial(f + 1, n) * quick_pow(2.0, l));
-        pre = std::sqrt(pre) / ((f1 + 2) * (f2 + 2));
+        pre *= (2 * l1 + 1) * unsafe_binomial(2 * nl1 + 1, nl1) / (unsafe_binomial(e1 + 1, n1) * quick_pow(2.0, l1));
+        pre *= (2 * l2 + 1) * unsafe_binomial(2 * nl2 + 1, nl2) / (unsafe_binomial(e2 + 1, n2) * quick_pow(2.0, l2));
+        pre *= (2 * L + 1) * unsafe_binomial(2 * NL + 1, NL) / (unsafe_binomial(E + 1, N) * quick_pow(2.0, L));
+        pre *= (2 * l + 1) * unsafe_binomial(2 * nl + 1, nl) / (unsafe_binomial(e + 1, n) * quick_pow(2.0, l));
+        pre = std::sqrt(pre) / ((e1 + 2) * (e2 + 2));
 
         double sum = 0.0;
-        for (int fa = 0; fa <= std::min(f1, F); ++fa)
+        for (int ea = 0; ea <= std::min(e1, E); ++ea)
         {
-            const int fb = f1 - fa;
-            const int fc = F - fa;
-            const int fd = f2 - fc;
-            if (fd < 0)
+            const int eb = e1 - ea;
+            const int ec = E - ea;
+            const int ed = e2 - ec;
+            if (ed < 0)
                 continue;
-            const double tfa = quick_pow(sin_beta, fa + fd) * quick_pow(cos_beta, fb + fc) *
-                               unsafe_binomial(f1 + 2, fa + 1) * unsafe_binomial(f2 + 2, fc + 1);
-            for (int la = fa & 0x01; la <= fa; la += 2)
+            const double tfa = quick_pow(sin_beta, ea + ed) * quick_pow(cos_beta, eb + ec) *
+                               unsafe_binomial(e1 + 2, ea + 1) * unsafe_binomial(e2 + 2, ec + 1);
+            for (int la = ea & 0x01; la <= ea; la += 2)
             {
-                const int na = (fa - la) / 2;
+                const int na = (ea - la) / 2;
                 const int nla = na + la;
                 const double _ta =
-                    quick_pow(2, la) * (2 * la + 1) * unsafe_binomial(fa + 1, na) / unsafe_binomial(2 * nla + 1, nla);
+                    quick_pow(2, la) * (2 * la + 1) * unsafe_binomial(ea + 1, na) / unsafe_binomial(2 * nla + 1, nla);
                 const double ta = tfa * _ta;
-                for (int lb = std::abs(l1 - la); lb <= std::min(l1 + la, fb); lb += 2)
+                for (int lb = std::abs(l1 - la); lb <= std::min(l1 + la, eb); lb += 2)
                 {
-                    const int nb = (fb - lb) / 2;
+                    const int nb = (eb - lb) / 2;
                     const int nlb = nb + lb;
-                    const double _tb = quick_pow(2, lb) * (2 * lb + 1) * unsafe_binomial(fb + 1, nb) /
+                    const double _tb = quick_pow(2, lb) * (2 * lb + 1) * unsafe_binomial(eb + 1, nb) /
                                        unsafe_binomial(2 * nlb + 1, nlb);
                     const int g1 = (la + lb + l1) / 2;
                     const double t1 = unsafe_binomial(g1, l1) * unsafe_binomial(l1, g1 - la);
                     const double tb = ta * _tb * t1;
-                    for (int lc = std::abs(L - la); lc <= std::min(L + la, fc); lc += 2)
+                    for (int lc = std::abs(L - la); lc <= std::min(L + la, ec); lc += 2)
                     {
-                        const int nc = (fc - lc) / 2;
+                        const int nc = (ec - lc) / 2;
                         const int nlc = nc + lc;
-                        const double _tc = quick_pow(2, lc) * (2 * lc + 1) * unsafe_binomial(fc + 1, nc) /
+                        const double _tc = quick_pow(2, lc) * (2 * lc + 1) * unsafe_binomial(ec + 1, nc) /
                                            unsafe_binomial(2 * nlc + 1, nlc);
                         const int g3 = (la + lc + L) / 2;
                         const double t3 = unsafe_binomial(g3, L) * unsafe_binomial(L, g3 - la);
@@ -552,12 +552,12 @@ class WignerSymbols
                                           unsafe_binomial(2 * L, L + la - lc);
                         const double tc = tb * _tc * t3 / d3;
                         const int ldmin = std::max(std::abs(l2 - lc), std::abs(l - lb));
-                        const int ldmax = std::min(fd, std::min(l2 + lc, l + lb));
+                        const int ldmax = std::min(ed, std::min(l2 + lc, l + lb));
                         for (int ld = ldmin; ld <= ldmax; ld += 2)
                         {
-                            const int nd = (fd - ld) / 2;
+                            const int nd = (ed - ld) / 2;
                             const int nld = nd + ld;
-                            const double _td = quick_pow(2, ld) * (2 * ld + 1) * unsafe_binomial(fd + 1, nd) /
+                            const double _td = quick_pow(2, ld) * (2 * ld + 1) * unsafe_binomial(ed + 1, nd) /
                                                unsafe_binomial(2 * nld + 1, nld);
                             const int g2 = (lc + ld + l2) / 2;
                             const double t2 = unsafe_binomial(g2, l2) * unsafe_binomial(l2, g2 - lc);
