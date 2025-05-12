@@ -974,10 +974,11 @@ static int impl_Moshinsky(qsqrt_ptr ans, int Ncom, int Lcom, int nrel, int lrel,
             }
         }
     }
+    int hint = maxint(chi + 2, maxint(Lcom + lrel, l1 + l2) + lam + 1);
     if (mpz_sgn(sum_n) == 0)
     {
         qsqrt_set_ui(ans, 0);
-        return 0;
+        hint = 0;
     }
     mpz_clear(t);
     mpz_clear(tx);
@@ -993,7 +994,6 @@ static int impl_Moshinsky(qsqrt_ptr ans, int Ncom, int Lcom, int nrel, int lrel,
     mpz_clear(Cd);
     mpz_clear(Dn);
     mpz_clear(Dd);
-    int hint = maxint(chi + 2, maxint(Lcom + lrel, l1 + l2) + lam + 1);
     return hint;
 }
 
@@ -1180,10 +1180,12 @@ static int impl_Moshinsky_d(qsqrt_ptr ans, int Ncom, int Lcom, int nrel, int lre
             }
         }
     }
+    int hint = maxint(chi + 2, maxint(Lcom + lrel, l1 + l2) + lam + 1);
+    hint = maxint(hint, m1w1 + m2w2);
     if (mpz_sgn(sum_n) == 0)
     {
         qsqrt_set_ui(ans, 0);
-        return 0;
+        hint = 0;
     }
     mpz_clear(t);
     mpz_clear(tx);
@@ -1200,8 +1202,6 @@ static int impl_Moshinsky_d(qsqrt_ptr ans, int Ncom, int Lcom, int nrel, int lre
     mpz_clear(Cd);
     mpz_clear(Dn);
     mpz_clear(Dd);
-    int hint = maxint(chi + 2, maxint(Lcom + lrel, l1 + l2) + lam + 1);
-    hint = maxint(hint, m1w1 + m2w2);
     return hint;
 }
 

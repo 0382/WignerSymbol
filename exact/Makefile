@@ -1,6 +1,8 @@
 CFLAGS = -I. -O3 -Wall -Wextra -std=c99 -lgmp -lm
 CXXFLAGS = -I. -O3 -Wall -Wextra -std=c++17 -lgmp -lm
 
+all: test.exe bench.exe
+
 test.exe : test.o libexactWigner.a
 	gcc -o test.exe test.o -L. -lexactWigner $(CFLAGS)
 

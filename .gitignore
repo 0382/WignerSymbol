@@ -5,3 +5,5 @@
 *.out
 *.so
 *.txt
+backup/
+xfloat/
