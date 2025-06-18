@@ -15,6 +15,7 @@ void test_special_6j(int djmax);
 void test_special_Racah(int djmax);
 void test_special_9j(int djmax);
 void test_Moshinsky();
+void test_Moshinsky_d();
 
 int main()
 {
@@ -24,6 +25,7 @@ int main()
     test_special_Racah(20);
     test_special_9j(10);
     test_Moshinsky();
+    test_Moshinsky_d();
     return 0;
 }
 
@@ -310,4 +312,54 @@ void test_Moshinsky()
     qsqrt_clear(x);
     qsqrt_clear(y);
     qsqrt_clear(z);
+}
+
+void test_Moshinsky_d()
+{
+    static const int test_set[8][11] = {
+        {2, 3, 0, 0, 1, 2, 0, 3, 3, 1, 2},  {0, 4, 1, 1, 0, 1, 0, 6, 5, 1, 2},     {0, 1, 0, 4, 0, 1, 0, 4, 5, 1, 3},
+        {0, 2, 0, 3, 1, 1, 1, 0, 1, 1, 3},  {1, 1, 0, 3, 0, 2, 1, 2, 4, 5, 1},     {1, 7, 1, 1, 1, 2, 1, 6, 7, 5, 1},
+        {1, 2, 0, 1, 2, 1, 0, 0, 1, 22, 7}, {1, 2, 0, 1, 2, 1, 0, 0, 1, 355, 113},
+    };
+    static const int test_ans[8][4] = {
+        {8, 27, 22, 105}, {8, 27, 26, 11},      {-11, 32, 1, 1},    {-3, 8, 7, 5},
+        {1, 9, 2, 21},    {-151, 1944, 17, 70}, {968, 841, 14, 87}, {126025, 328536, 113, 78},
+    };
+    qsqrt_t x, y;
+    qsqrt_init(x);
+    qsqrt_init(y);
+    int ok = 1;
+    for (int i = 0; i < 8; ++i)
+    {
+        int Ncom = test_set[i][0];
+        int Lcom = test_set[i][1];
+        int nrel = test_set[i][2];
+        int lrel = test_set[i][3];
+        int n1 = test_set[i][4];
+        int l1 = test_set[i][5];
+        int n2 = test_set[i][6];
+        int l2 = test_set[i][7];
+        int lambda = test_set[i][8];
+        int m1w1 = test_set[i][9];
+        int m2w2 = test_set[i][10];
+        exact_Moshinsky_d(x, Ncom, Lcom, nrel, lrel, n1, l1, n2, l2, lambda, m1w1, m2w2);
+        int sn = test_ans[i][0];
+        int sd = test_ans[i][1];
+        int rn = test_ans[i][2];
+        int rd = test_ans[i][3];
+        qsqrt_set_si4(y, sn, sd, rn, rd);
+        if (!qsqrt_eq(x, y))
+        {
+            printf("test Moshinsky_d failed for Ncom=%d, Lcom=%d, nrel=%d, lrel=%d, n1=%d, l1=%d, n2=%d, l2=%d, "
+                   "lambda=%d, m1w1=%d, m2w2=%d\n",
+                   Ncom, Lcom, nrel, lrel, n1, l1, n2, l2, lambda, m1w1, m2w2);
+            qsqrt_print(x);
+            qsqrt_print(y);
+            ok = 0;
+        }
+    }
+    if (ok)
+    {
+        printf("8 test Moshinsky_d passed\n");
+    }
 }
